@@ -5,3 +5,5 @@ import App from "./app/App.tsx";
 import "./styles/index.css";
 
 createRoot(document.getElementById("root")!).render(<App />);
+
+console.log("main.tsx 加载成功...")

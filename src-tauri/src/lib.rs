@@ -1,8 +1,11 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 use tauri::generate_context;
-mod commands;
-mod error;
-use commands::*;
+/// 模块定义
+pub mod commands;
+pub mod error;
+pub mod utils;
+/// 重导出
+pub use commands::*;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -13,9 +16,10 @@ pub fn run() {
             get_passwd,
             list_nicknames,
             add_nickname,
-            search_passwd,
+            search_passwds,
             get_config,
-            add_passwd
+            add_passwd,
+            update_passwd
         ])
         .run(generate_context!())
         .expect("error while running tauri application");

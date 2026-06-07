@@ -38,4 +38,7 @@ export default defineConfig(async () => ({
     },
   },
   assetsInclude: ['**/*.svg', '**/*.csv'],
+  optimizeDeps: {
+    exclude: ['src-tauri'], // 不要预扫描 src-tauri 目录
+  },
 }));
