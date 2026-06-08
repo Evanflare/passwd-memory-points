@@ -1,6 +1,8 @@
 import {
   useState,
   useEffect,
+  useRef,
+  cloneElement,
 } from "react";
 import {
   KeyRound,
@@ -51,6 +53,17 @@ export default function App() {
   const [activePage, setActivePage] =
     useState<Page>("passwd-list");
   const [dark, setDark] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
+    try {
+      const v = localStorage.getItem("kv_sidebar_width");
+      return v ? Number(v) : 360;
+    } catch {
+      return 360;
+    }
+  });
+  const [collapsed, setCollapsed] = useState<boolean>(false);
+  const draggingRef = useRef(false);
+  const asideRef = useRef<HTMLDivElement | null>(null);
 
   // 简单的 Android 检测（运行时）——用于在 Android 上调整布局
   const isAndroid = typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
@@ -58,6 +71,13 @@ export default function App() {
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
   }, [dark]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("kv_sidebar_width", String(sidebarWidth));
+    } catch { }
+  }, [sidebarWidth]);
+
 
   return (
     // {/* MARKER-MAKE-KIT-INVOKED */}
@@ -92,66 +112,120 @@ export default function App() {
       <div className="flex-1 flex">
         {/* Sidebar (非 Android 显示) */}
         {!isAndroid && (
-          <aside className="w-[25vw] max-w-sm shrink-0 flex flex-col bg-sidebar border-r border-sidebar-border h-full">
-            {/* Logo + App name */}
-            <div className="flex items-center gap-3 px-5 py-6 border-b border-sidebar-border">
+          <aside
+            ref={asideRef}
+            className="relative shrink-0 flex flex-col bg-sidebar border-r border-sidebar-border h-full"
+            style={{
+              width: collapsed ? 56 : sidebarWidth,
+              minWidth: collapsed ? 56 : 160,
+              maxWidth: 800,
+            }}
+          >
+            {/* Logo + App name (click logo to toggle collapse) */}
+            <button
+              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              onClick={() => setCollapsed(!collapsed)}
+              className={`flex items-center gap-3 ${collapsed ? 'px-2' : 'px-3'} py-6 border-b border-sidebar-border text-left`}
+            >
               <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shrink-0">
                 <ShieldCheck
                   size={20}
                   className="text-primary-foreground"
                 />
               </div>
-              <div>
-                <div className="text-xs text-sidebar-foreground/50 leading-none mb-0.5">
-                  Vault
-                </div>
-                <div className="font-semibold text-sidebar-foreground leading-none">
-                  KeyVault
-                </div>
-              </div>
-            </div>
+              {!collapsed &&
+                (<div className={`overflow-hidden transition-all ${collapsed ? 'w-0 opacity-0' : ''}`}>
+                  <div className="text-xs text-sidebar-foreground/50 leading-none mb-0.5">
+                    密码
+                  </div>
+                  <div className="font-semibold text-sidebar-foreground leading-none">
+                    记忆点管理
+                  </div>
+                </div>)
+              }
+
+            </button>
 
             {/* Navigation */}
-            <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
+            <nav className="flex-1 px-1 py-4 flex flex-col gap-1">
               {NAV_ITEMS.map((item) => {
                 const active = activePage === item.id;
+                const iconElement = (item.icon && (item.icon as any).type)
+                  ? cloneElement(item.icon as any, { size: collapsed ? 20 : 18 })
+                  : item.icon;
+                const btnClass = collapsed
+                  ? `flex items-center justify-center w-full px-0 py-2 rounded-lg text-sm transition-colors ${active ? "bg-sidebar-primary text-sidebar-primary-foreground" : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`
+                  : `flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-colors text-left ${active ? "bg-sidebar-primary text-sidebar-primary-foreground" : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`;
+
                 return (
                   <button
                     key={item.id}
                     onClick={() => setActivePage(item.id)}
-                    className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-colors text-left ${active
-                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                      }`}
+                    title={collapsed ? item.label : undefined}
+                    className={btnClass}
                   >
-                    <span
-                      className={
-                        active
-                          ? "text-sidebar-primary-foreground"
-                          : "text-sidebar-foreground/50"
-                      }
-                    >
-                      {item.icon}
+                    <span className={active ? "text-sidebar-primary-foreground" : "text-sidebar-foreground/50"}>
+                      {iconElement}
                     </span>
-                    {item.label}
+                    {!collapsed && (
+                      <span className={`transition-all duration-150`}>{item.label}</span>
+                    )}
                   </button>
                 );
               })}
             </nav>
 
+            {/* drag handle */}
+            <div
+              onMouseDown={(e) => {
+                e.preventDefault();
+                draggingRef.current = true;
+                document.body.style.cursor = 'col-resize';
+                const onMove = (ev: MouseEvent) => {
+                  const rect = asideRef.current?.getBoundingClientRect();
+                  if (!rect) return;
+                  const newWidth = Math.max(160, Math.min(800, ev.clientX - rect.left));
+                  setSidebarWidth(newWidth);
+                  setCollapsed(false);
+                };
+                const onUp = () => {
+                  draggingRef.current = false;
+                  document.body.style.cursor = '';
+                  document.removeEventListener('mousemove', onMove);
+                  document.removeEventListener('mouseup', onUp);
+                };
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onUp);
+              }}
+              className="absolute top-0 right-0 h-full w-2 cursor-col-resize hover:bg-sidebar-accent/40"
+              style={{ touchAction: 'none' }}
+            />
+
             {/* Theme toggle (仅在非 Android 的侧栏中显示) */}
             <div className="px-4 py-5 border-t border-sidebar-border">
-              <button
-                onClick={() => setDark(!dark)}
-                className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-sidebar-border bg-sidebar-accent/50 hover:bg-sidebar-accent transition-colors group"
-              >
-                <span className="text-sm text-sidebar-foreground/70 group-hover:text-sidebar-accent-foreground transition-colors">
-                  {dark ? "Dark Mode" : "Light Mode"}
-                </span>
-                <span className="w-8 h-8 rounded-lg flex items-center justify-center bg-sidebar text-sidebar-foreground/70 group-hover:text-sidebar-accent-foreground transition-colors shadow-sm">
-                  {dark ? <Moon size={16} /> : <Sun size={16} />}
-                </span>
-              </button>
+              {!collapsed ? (
+                <button
+                  onClick={() => setDark(!dark)}
+                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-sidebar-border bg-sidebar-accent/50 hover:bg-sidebar-accent transition-colors group"
+                >
+                  <span className="text-sm text-sidebar-foreground/70 group-hover:text-sidebar-accent-foreground transition-colors">
+                    {dark ? "Dark Mode" : "Light Mode"}
+                  </span>
+                  <span className="w-8 h-8 rounded-lg flex items-center justify-center bg-sidebar text-sidebar-foreground/70 group-hover:text-sidebar-accent-foreground transition-colors shadow-sm">
+                    {dark ? <Moon size={16} /> : <Sun size={16} />}
+                  </span>
+                </button>
+              ) : (
+                <div className="flex items-center justify-center">
+                  <button
+                    onClick={() => setDark(!dark)}
+                    title={dark ? "Dark Mode" : "Light Mode"}
+                    className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-sidebar-accent transition-colors"
+                  >
+                    {dark ? <Moon size={16} /> : <Sun size={16} />}
+                  </button>
+                </div>
+              )}
             </div>
           </aside>
         )}
