@@ -22,17 +22,17 @@ const NAV_ITEMS: {
 }[] = [
     {
       id: "passwd-list",
-      label: "Password List",
+      label: "密码\n记忆点",
       icon: <KeyRound size={18} />,
     },
     {
       id: "nickname-manager",
-      label: "Nickname Manager",
+      label: "记忆点集",
       icon: <UserRound size={18} />,
     },
     {
       id: "config",
-      label: "Config",
+      label: "配置信息",
       icon: <Settings size={18} />,
     },
   ];
@@ -209,7 +209,7 @@ export default function App() {
                   className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-sidebar-border bg-sidebar-accent/50 hover:bg-sidebar-accent transition-colors group"
                 >
                   <span className="text-sm text-sidebar-foreground/70 group-hover:text-sidebar-accent-foreground transition-colors">
-                    {dark ? "Dark Mode" : "Light Mode"}
+                    {dark ? "黑夜模式" : "明亮模式"}
                   </span>
                   <span className="w-8 h-8 rounded-lg flex items-center justify-center bg-sidebar text-sidebar-foreground/70 group-hover:text-sidebar-accent-foreground transition-colors shadow-sm">
                     {dark ? <Moon size={16} /> : <Sun size={16} />}

@@ -14,8 +14,8 @@ export default function PasswdListTable({
             <table className="w-full text-sm">
                 <thead>
                     <tr className="bg-muted/50 border-b border-border">
-                        <th className="text-left px-4 py-3 text-muted-foreground">Name</th>
-                        <th className="text-left px-4 py-3 text-muted-foreground">Description</th>
+                        <th className="text-left px-4 py-3 text-muted-foreground">名称</th>
+                        <th className="text-left px-4 py-3 text-muted-foreground">描述</th>
                         {/* <th className="text-left px-4 py-3 text-muted-foreground">Last Updated</th> */}
                         <th className="px-4 py-3" />
                     </tr>
@@ -45,7 +45,7 @@ export default function PasswdListTable({
                                         }}
                                         className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md bg-secondary text-secondary-foreground hover:bg-accent transition-colors ml-auto"
                                     >
-                                        Decrypt
+                                        解密
                                     </button>
                                 </td>
                             </tr>

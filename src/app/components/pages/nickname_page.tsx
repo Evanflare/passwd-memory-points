@@ -125,9 +125,9 @@ export default function NicknameManagerPage() {
             <div className="p-8 w-4/5 max-w-4xl  flex flex-col h-full">
                 <div className="flex items-start justify-between gap-4 mb-6">
                     <div>
-                        <h1 className="mb-1">Nickname Manager</h1>
+                        <h1 className="mb-1">记忆点集</h1>
                         <p className="text-muted-foreground">
-                            Track which alias you use on each platform.
+                            每个记忆点都帮助你加密你的密码。
                         </p>
                     </div>
                     {/* Single page-level decrypt button */}
@@ -142,7 +142,7 @@ export default function NicknameManagerPage() {
                             }`}
                     >
                         <Lock size={13} />
-                        {revealed ? "Lock All" : "Decrypt All"}
+                        {revealed ? "恢复密文" : "显示明文"}
                     </button>
                 </div>
                 {/* Add Nickname — simple form */}
@@ -152,14 +152,14 @@ export default function NicknameManagerPage() {
                             type="text"
                             value={newNickname}
                             onChange={(e) => setNewNickname(e.target.value)}
-                            placeholder="New nickname"
+                            placeholder="新建一个记忆点"
                             className="flex-1 px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                         />
                         <input
                             type="password"
                             value={newKey}
                             onChange={(e) => setNewKey(e.target.value)}
-                            placeholder="Secret"
+                            placeholder="密钥"
                             className="w-48 px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                         />
                         <button
@@ -202,7 +202,7 @@ export default function NicknameManagerPage() {
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         onKeyDown={handleSearchKey}
-                        placeholder="Search by name or platform… (Enter to search)"
+                        placeholder="搜索所有包含关键词… (按Enter可搜索)"
                         className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                     />
                     {committed && (
@@ -285,13 +285,6 @@ export default function NicknameManagerPage() {
                 </ScrollArea>
 
             </div>
-
-            {/* Floating Add button */}
-            <button className="fixed bottom-8 right-8 flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-foreground shadow-lg hover:opacity-90 active:scale-95 transition-all">
-                <Plus size={16} />
-                Add Nickname
-            </button>
-
             {/* Decrypt dialog */}
             {showDecryptDialog && (
                 <NicknameDecryptDialog

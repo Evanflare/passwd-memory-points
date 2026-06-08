@@ -55,9 +55,9 @@ export default function PasswordListPage() {
     return (
         <div className="relative flex-1 flex justify-center min-h-0">
             <div className="p-8 w-4/5 max-w-4xl flex flex-col min-h-0">
-                <h1 className="mb-1">Password List</h1>
+                <h1 className="mb-1">密码记忆点管理</h1>
                 <p className="text-muted-foreground mb-6">
-                    Manage your saved credentials securely.
+                    管理你的密码记忆，添加一个密码记忆？
                 </p>
 
                 {/* Search — always visible above results */}
@@ -75,7 +75,7 @@ export default function PasswordListPage() {
                                 query: e.currentTarget.value
                             })
                         }}
-                        placeholder="Search by name or description… (Enter to search)"
+                        placeholder="搜索'密码名'或者'描述'中的关键词..."
                         className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                     />
                     {passwdState.query && (
@@ -92,8 +92,8 @@ export default function PasswordListPage() {
 
                 {passwdState.query && (
                     <p className="text-xs text-muted-foreground mb-3">
-                        {passwdState.filtered_list.length} result
-                        {passwdState.filtered_list.length !== 1 ? "s" : ""} for "
+                        {passwdState.filtered_list.length} 结果 关于:
+                        {/* {passwdState.filtered_list.length !== 1 ? "s" : ""} 关于" */}
                         <span className="text-foreground">{passwdState.query}</span>
                         "
                     </p>
@@ -114,7 +114,7 @@ export default function PasswordListPage() {
                 onClick={() => changeAddFlag(true)}
                 className="fixed bottom-8 right-8 flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-foreground shadow-lg hover:opacity-90 active:scale-95 transition-all">
                 <Plus size={16} />
-                Add New Entry
+
             </button>
 
             {/* Decrypt dialog */}

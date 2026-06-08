@@ -113,9 +113,9 @@ export default function AddPasswordDialog({ onClose, onAdded, hidden }: AddPassw
                                 <Plus size={15} className="text-primary" />
                             </div>
                             <div>
-                                <div className="font-semibold">Add New Entry</div>
+                                <div className="font-semibold">添加一个密码记忆</div>
                                 <div className="text-xs text-muted-foreground">
-                                    Securely store a password
+                                    加密并存储你的密码记忆
                                 </div>
                             </div>
                         </div>
@@ -130,38 +130,38 @@ export default function AddPasswordDialog({ onClose, onAdded, hidden }: AddPassw
                         {/* Body */}
                         <div className="px-6 py-5 flex flex-col gap-4">
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-sm">Name *</label>
+                                <label className="text-sm">名称 *</label>
                                 <input
                                     ref={nameInputRef}
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     onKeyDown={handleKeyDown}
-                                    placeholder="e.g., GitHub"
+                                    placeholder="例如: bilibili 密码"
                                     className="w-full px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                                 />
                             </div>
 
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-sm">Description (optional)</label>
+                                <label className="text-sm">描述 (可选)</label>
                                 <textarea
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
                                     onKeyDown={handleKeyDown}
-                                    placeholder="Additional notes..."
+                                    placeholder="时间、地点、人物、网址等"
                                     rows={2}
                                     className="w-full px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors resize-none"
                                 />
                             </div>
 
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-sm">Unique Identifier *</label>
+                                <label className="text-sm">随机串</label>
                                 <input
                                     type="text"
                                     value={unique}
                                     onChange={(e) => setUnique(e.target.value)}
                                     onKeyDown={handleKeyDown}
-                                    placeholder="e.g., user@github.com"
+                                    placeholder="随便填一个值，确保每个密码都不一样！"
                                     className="w-full px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                                 />
                             </div>
@@ -174,21 +174,21 @@ export default function AddPasswordDialog({ onClose, onAdded, hidden }: AddPassw
                                         onChange={(e) => setRandom(e.target.checked)}
                                         className="rounded border-border"
                                     />
-                                    <span>Randomly part number</span>
+                                    <span>打乱记忆点顺序</span>
                                     <Shuffle size={14} className="text-muted-foreground" />
                                 </label>
                             </div>
 
 
                             <div className="flex flex-col gap-2">
-                                <label className="text-sm">Password Parts *</label>
+                                <label className="text-sm">密码记忆点 *</label>
                                 {parts.map((part, idx) => (
                                     <div key={idx} className="flex gap-2 items-center">
                                         <input
                                             type="text"
                                             value={part}
                                             onChange={(e) => updatePart(idx, e.target.value)}
-                                            placeholder={`Part ${idx + 1}`}
+                                            placeholder={`记忆点 ${idx + 1}`}
                                             className="flex-1 px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                                         />
                                         {parts.length > 1 && (
@@ -207,26 +207,26 @@ export default function AddPasswordDialog({ onClose, onAdded, hidden }: AddPassw
                                     onClick={addPart}
                                     className="text-xs text-primary hover:underline self-start"
                                 >
-                                    + Add part
+                                    + 添加更多
                                 </button>
                                 <p className="text-xs text-muted-foreground">
-                                    The password will be formed by concatenating these parts (in order).
+                                    这些关键词会被连接在一起但通过空格分隔,如果选择了随机打乱那么顺序将会变化。
                                 </p>
                             </div>
 
 
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-sm">Secret Key *</label>
+                                <label className="text-sm">加密密钥 *</label>
                                 <input
                                     type="password"
                                     value={key}
                                     onChange={(e) => setKey(e.target.value)}
                                     onKeyDown={handleKeyDown}
-                                    placeholder="Your master key"
+                                    placeholder="你的加密密钥"
                                     className="w-full px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                                 />
                                 <p className="text-xs text-muted-foreground">
-                                    This key will be used to encrypt the password.
+                                    这个密钥将用于加密你的记忆点，需要与记忆点密钥保持一致。
                                 </p>
                             </div>
 
@@ -239,7 +239,7 @@ export default function AddPasswordDialog({ onClose, onAdded, hidden }: AddPassw
                                 disabled={loading}
                                 className="w-full py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity text-sm disabled:opacity-50"
                             >
-                                {loading ? "Adding..." : "Add Entry"}
+                                {loading ? "添加中..." : "添加"}
                             </button>
                             <button
                                 type="button"
@@ -255,7 +255,7 @@ export default function AddPasswordDialog({ onClose, onAdded, hidden }: AddPassw
                                 }}
                                 className="w-full py-2 rounded-lg border border-border bg-muted/10 text-muted-foreground hover:bg-muted/20 transition-colors text-sm"
                             >
-                                Reset form
+                                重置表单
                             </button>
                         </div>
                     </ScrollArea>

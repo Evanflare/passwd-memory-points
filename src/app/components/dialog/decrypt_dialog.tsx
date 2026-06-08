@@ -84,7 +84,7 @@ export default function DecryptDialog({
                         <div>
                             <div className="font-semibold">{entry.name}</div>
                             <div className="text-xs text-muted-foreground">
-                                Enter secret key to decrypt
+                                {entry.description}
                             </div>
                         </div>
                     </div>
@@ -101,7 +101,7 @@ export default function DecryptDialog({
                     {!plaintext ? (
                         <>
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-sm">Secret Key</label>
+                                <label className="text-sm">密钥</label>
                                 <input
                                     ref={inputRef}
                                     type="password"
@@ -111,7 +111,7 @@ export default function DecryptDialog({
                                         setError(false);
                                     }}
                                     onKeyDown={handleKeyDown}
-                                    placeholder="Press Enter to confirm…"
+                                    placeholder="按Enter确认"
                                     className={`w-full px-3 py-2 rounded-lg bg-input-background text-foreground border text-sm outline-none transition-colors ${error
                                         ? "border-destructive"
                                         : "border-border focus:border-primary"
@@ -122,32 +122,31 @@ export default function DecryptDialog({
                                         Incorrect secret key. Try again.
                                     </p>
                                 )}
-                                <p className="text-xs text-muted-foreground">
+                                {/* <p className="text-xs text-muted-foreground">
                                     Demo hint: the key is{" "}
                                     <code className="bg-muted px-1 rounded">
                                         1234
                                     </code>
-                                </p>
+                                </p> */}
                             </div>
                             <button
                                 onClick={() => decyted()}
                                 className="w-full py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity text-sm"
                             >
-                                Decrypt
+                                解密
                             </button>
                         </>
                     ) : (
                         <div className="flex flex-col gap-3">
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <Eye size={14} />
-                                Decrypted password
+                                密码记忆
                             </div>
                             <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-muted border border-border font-mono tracking-wide select-all">
                                 {plaintext}
                             </div>
                             <p className="text-xs text-muted-foreground">
-                                Close this dialog or press Esc to clear the
-                                plaintext from memory.
+                                关闭页面或者按Esc退出，都会直接清除内存中暂存密码记忆明文
                             </p>
                         </div>
                     )}
