@@ -7,6 +7,11 @@ export type PasswdSummary = {
     description: string;
     ciphertext: string;
 };
+export type ConfigInfo = {
+    default_fill_char: '',
+    passwd_file_path: string,
+    profile_path: string,
+}
 
 export async function listPasswds(keyWord = ""): Promise<PasswdSummary[]> {
     return await invoke("list_passwds", { key_word: keyWord });
@@ -75,4 +80,8 @@ export async function addNickname(nickname: string, key: string): Promise<boolea
         console.error("invoke add_nickname error:", e);
         throw e;
     }
+}
+
+export async function getConfig(): Promise<ConfigInfo> {
+    return await invoke("get_config");
 }

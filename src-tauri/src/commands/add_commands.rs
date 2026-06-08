@@ -1,10 +1,16 @@
 use crate::{error::Error, utils::passwd_vec_utils::check_secret_right_or_error};
 use nickname_passwd::passwd::{nickname::Nickname, Passwd, PasswdVector};
+use std::sync::Mutex;
+use tauri::State;
 
 /// 添加一个新的记忆点，前端需要提供一个昵称和一个密钥来加密昵称
 #[tauri::command]
-pub fn add_nickname(nickname: String, key: String) -> Result<bool, Error> {
-    let mut passwd_vector = PasswdVector::read_or_create();
+pub fn add_nickname(
+    nickname: String,
+    key: String,
+    state: State<'_, Mutex<PasswdVector>>,
+) -> Result<bool, Error> {
+    let mut passwd_vector = state.lock().unwrap();
     passwd_vector.nickname.add_nickname(&nickname, &key);
     passwd_vector
         .store()
@@ -21,16 +27,23 @@ pub fn add_passwd(
     name: String,
     descript: String,
     key: String,
+    state: State<'_, Mutex<PasswdVector>>,
 ) -> Result<bool, Error> {
     // 首先校验密码是否相同，不允许每个passwd有不同的加密secret，这样会导致遗忘
-    let mut passwd_vector = PasswdVector::read_or_create();
+    let mut passwd_vector = state.lock().unwrap();
     if let Err(_) = check_secret_right_or_error(&passwd_vector, &key) {
         return Err(Error::SecretKeyError(
             "密钥需要保证与已存密钥一致".to_string(),
         ));
     }
     let plaintext = Nickname::generate_passwd_nickname(&mut parts.clone(), &unique, random);
-    let passwd = Passwd::generate(&name, &descript, &plaintext, &key);
+    let passwd = Passwd::generate(
+        &name,
+        &descript,
+        &plaintext,
+        &key,
+        passwd_vector.config.default_fill_char,
+    );
     passwd_vector.add_passwd(passwd);
     passwd_vector
         .store()

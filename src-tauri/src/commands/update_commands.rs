@@ -2,7 +2,8 @@
 
 use crate::error::Error;
 use nickname_passwd::passwd::*;
-
+use std::sync::Mutex;
+use tauri::State;
 /// 通过这个命令uid来决定更新的对象，传入更新的元素
 #[tauri::command(rename_all = "snake_case")]
 pub async fn update_passwd(
@@ -11,9 +12,10 @@ pub async fn update_passwd(
     descript: Option<&str>,
     plaintext: Option<&str>,
     user_key: &str,
+    state: State<'_, Mutex<PasswdVector>>,
 ) -> Result<(), Error> {
     // 先从uid拿到passwd
-    let mut passwd_vector = PasswdVector::read_or_create();
+    let mut passwd_vector = state.lock().unwrap();
     let passwd = match passwd_vector.get_passwd_by_uid(uid) {
         Some(get_passwd_by_uid) => get_passwd_by_uid,
         None => {

@@ -1,11 +1,21 @@
 import { useState } from "react";
 import { ScrollArea } from "../ui/scroll-area";
+import { getConfig } from "../../tauri_core/command_frontend";
 
 export default function ConfigPage() {
     const [autoLock, setAutoLock] = useState(true);
     const [biometric, setBiometric] = useState(false);
     const [clipboard, setClipboard] = useState(true);
-
+    const [passwdFilePath, setPasswdFilePath] = useState("");
+    const [configPath, setConfigPath] = useState("");
+    const [defaultChar, setDefaultChar] = useState("");
+    async function updateConfig() {
+        let config = await getConfig();
+        setPasswdFilePath(config.passwd_file_path);
+        setConfigPath(config.profile_path);
+        setDefaultChar(config.default_fill_char);
+    };
+    updateConfig();
     const Toggle = ({
         on,
         onToggle,
@@ -71,7 +81,31 @@ export default function ConfigPage() {
                             App Version
                         </div>
                         <div className="text-sm text-muted-foreground">
-                            KeyVault v1.0.0 — build 2026.06.06
+                            passwd-nickname v1.0.0 — build 2026.06.08
+                        </div>
+                    </div>
+                    <div className="mt-6 p-4 rounded-xl border border-border bg-card">
+                        <div className="text-sm font-medium mb-1">
+                            Passwd File Path
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                            {passwdFilePath}
+                        </div>
+                    </div>
+                    <div className="mt-6 p-4 rounded-xl border border-border bg-card">
+                        <div className="text-sm font-medium mb-1">
+                            Config File Path
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                            {configPath}
+                        </div>
+                    </div>
+                    <div className="mt-6 p-4 rounded-xl border border-border bg-card">
+                        <div className="text-sm font-medium mb-1">
+                            Default Fill Character
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                            {defaultChar}
                         </div>
                     </div>
                 </ScrollArea>
