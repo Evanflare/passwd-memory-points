@@ -36,30 +36,24 @@ export default function ConfigPage() {
     return (
         <div className="relative  h-screen w-full flex justify-center p-8">
             <div className="p-8 w-4/5 max-w-4xl flex flex-col h-full">
-                <h1 className="mb-1">Config</h1>
+                <h1 className="mb-1">配置信息</h1>
                 <p className="text-muted-foreground mb-6">
-                    Adjust application preferences.
+                    关于软件的行为与其他信息。
                 </p>
                 <ScrollArea className="flex-1 min-h-0 rounded-b-2xl">
                     <div className="rounded-xl border border-border divide-y divide-border overflow-hidden">
                         {[
                             {
-                                label: "Auto-lock after 5 min",
-                                desc: "Lock vault when idle",
-                                val: autoLock,
-                                fn: () => setAutoLock(!autoLock),
+                                label: "密码文件存储路径",
+                                desc: passwdFilePath,
                             },
                             {
-                                label: "Biometric Unlock",
-                                desc: "Use fingerprint or face ID",
-                                val: biometric,
-                                fn: () => setBiometric(!biometric),
+                                label: "配置文件存储路径",
+                                desc: configPath,
                             },
                             {
-                                label: "Clipboard Auto-clear",
-                                desc: "Clear clipboard after 30 s",
-                                val: clipboard,
-                                fn: () => setClipboard(!clipboard),
+                                label: "密钥默认填充符号",
+                                desc: defaultChar,
                             },
                         ].map((item) => (
                             <div
@@ -72,40 +66,27 @@ export default function ConfigPage() {
                                         {item.desc}
                                     </div>
                                 </div>
-                                <Toggle on={item.val} onToggle={item.fn} />
                             </div>
                         ))}
                     </div>
                     <div className="mt-6 p-4 rounded-xl border border-border bg-card">
                         <div className="text-sm font-medium mb-1">
-                            App Version
+                            软件版本
                         </div>
                         <div className="text-sm text-muted-foreground">
-                            passwd-nickname v1.0.0 — build 2026.06.08
+                            passwd-nickname v1.0.0 — 构建于 2026.06.08
                         </div>
-                    </div>
-                    <div className="mt-6 p-4 rounded-xl border border-border bg-card">
-                        <div className="text-sm font-medium mb-1">
-                            Passwd File Path
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                            {passwdFilePath}
-                        </div>
-                    </div>
-                    <div className="mt-6 p-4 rounded-xl border border-border bg-card">
-                        <div className="text-sm font-medium mb-1">
-                            Config File Path
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                            {configPath}
-                        </div>
-                    </div>
-                    <div className="mt-6 p-4 rounded-xl border border-border bg-card">
-                        <div className="text-sm font-medium mb-1">
-                            Default Fill Character
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                            {defaultChar}
+                        <br></br>
+                        <div
+                            className="flex items-center justify-between bg-card"
+                        >
+                            <div>
+                                <div className="font-medium">作者</div>
+
+                                <div className="text-sm text-muted-foreground">
+                                    蒙煋Evanflare
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </ScrollArea>
