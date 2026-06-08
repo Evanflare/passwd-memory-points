@@ -2584,6 +2584,7 @@ dependencies = [
 name = "passwd-nickname-tauri"
 version = "0.1.0"
 dependencies = [
+ "dirs 6.0.0",
  "passwd-memory-point",
  "serde",
  "serde_json",
