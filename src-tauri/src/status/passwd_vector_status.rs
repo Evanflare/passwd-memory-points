@@ -1,7 +1,4 @@
-use nickname_passwd::{
-    config::{AppConfig, PASSWD_FILE_NAME, PROFILE_NAME},
-    passwd::PasswdVector,
-};
+use nickname_passwd::{config::AppConfig, passwd::PasswdVector};
 use std::path::PathBuf;
 use tauri::{App, Manager};
 /// 用 AppHandle 在 Android（优先）与其它平台上解析 confy/config.toml 的路径

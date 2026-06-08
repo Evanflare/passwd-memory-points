@@ -30,17 +30,31 @@ export default function PasswordListPage() {
             try {
                 const filtered_list = await searchPasswds(passwdState.query);
                 console.log("searchPasswds 返回结果:", filtered_list);
-                dispatch({ type: '_update-list', filtered_list });
+                dispatch({ type: 'update-list', filtered_list });
             } catch (err) {
                 console.error("searchPasswds 调用失败:", err);
             }
         };
         doSearch();
     }, [passwdState.query]);
+    useEffect(() => {
+        console.log("flushList 变化 useEffect 触发");
+        const doSearch = async () => {
+            console.log("开始调用 searchPasswds, 参数:", passwdState.query);
+            try {
+                const filtered_list = await searchPasswds(passwdState.query);
+                console.log("searchPasswds 返回结果:", filtered_list);
+                dispatch({ type: 'update-list', filtered_list });
+            } catch (err) {
+                console.error("searchPasswds 调用失败:", err);
+            }
+        };
+        doSearch();
+    }, [passwdState.flushList]);
 
     return (
-        <div className="relative  h-screen  flex justify-center">
-            <div className="p-8  w-4/5 max-w-4xl  flex flex-col h-full">
+        <div className="relative flex-1 flex justify-center min-h-0">
+            <div className="p-8 w-4/5 max-w-4xl flex flex-col min-h-0">
                 <h1 className="mb-1">Password List</h1>
                 <p className="text-muted-foreground mb-6">
                     Manage your saved credentials securely.
@@ -118,7 +132,7 @@ export default function PasswordListPage() {
                     onClose={() => setUpdateTarget(null)}
                     onUpdated={() => {
                         setUpdateTarget(null);
-                        dispatch({ type: "search", query: passwdState.query }); // 刷新列表或使用你已有的 action
+                        dispatch({ type: "changed" }); // 刷新列表或使用你已有的 action
                     }}
                 />
             )}

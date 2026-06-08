@@ -4,6 +4,7 @@ type PasswdState = {
     dialog_plaintext: string,
     query: string,
     filtered_list: PasswdSummary[],
+    flushList: boolean
 }
 type PasswdPageAction = {
     type: string,
@@ -21,6 +22,7 @@ const init_state: PasswdState = {
     dialog_plaintext: "",
     query: "",
     filtered_list: [],
+    flushList: true,
 }
 
 function actionReducer(draft: PasswdState, action: PasswdPageAction) {
@@ -28,17 +30,18 @@ function actionReducer(draft: PasswdState, action: PasswdPageAction) {
         case 'search':
             draft.query = action.query ?? "";
             break;
-        case '_update-list':
+        case 'update-list':
             if (action.filtered_list) draft.filtered_list = action.filtered_list;
             break;
         // ... 其他 case 不变
         case 'added': {
             // 当添加了新元素之后重新搜索一下
-            draft.query = "";
+            draft.flushList = !draft.flushList;
             break;
         }
         case 'changed': {
-            //todo
+            // 当更新了元素之后重新搜索一下
+            draft.flushList = !draft.flushList;
             break;
         }
         case 'deleted': {
