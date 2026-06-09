@@ -85,3 +85,11 @@ export async function addNickname(nickname: string, key: string): Promise<boolea
 export async function getConfig(): Promise<ConfigInfo> {
     return await invoke("get_config");
 }
+
+export async function plaintextPoints(user_key: string): Promise<string[]> {
+    return await invoke("plaintext_points", { key: user_key })
+}
+
+export async function getMemoryPoints(): Promise<string[]> {
+    return await invoke("get_memory_points")
+}

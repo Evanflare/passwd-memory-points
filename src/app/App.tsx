@@ -22,7 +22,7 @@ const NAV_ITEMS: {
 }[] = [
     {
       id: "passwd-list",
-      label: "密码\n记忆点",
+      label: "密码记忆",
       icon: <KeyRound size={18} />,
     },
     {

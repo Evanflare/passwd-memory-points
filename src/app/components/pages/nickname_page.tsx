@@ -1,97 +1,8 @@
-import { Plus, Search, X, Lock } from "lucide-react";
+import { Search, X, Lock } from "lucide-react";
 import { useState } from "react";
 import NicknameDecryptDialog from "../dialog/nickname_decrypt";
 import { ScrollArea } from "../ui/scroll-area";
-import { addNickname } from "../../tauri_core/command_frontend"
-const NICKNAME_PLAINTEXT: Record<number, string> = {
-    1: "alice_dev",
-    2: "alice_design",
-    3: "alice@work",
-    4: "aliceW",
-    5: "alice#1337",
-    6: "u/alice_anon",
-};
-
-type NicknameEntry = {
-    id: number;
-    label: string;
-    platform: string;
-    cipher: string;
-    accentBg: string;
-    accentText: string;
-    accentBorder: string;
-    accentTag: string;
-    accentTagText: string;
-};
-
-const ALL_NICKNAMES: NicknameEntry[] = [
-    {
-        id: 1,
-        label: "GitHub",
-        platform: "Developer Platform",
-        cipher: "••••••••_dev",
-        accentBg: "bg-emerald-500/10",
-        accentText: "text-emerald-600 dark:text-emerald-400",
-        accentBorder: "border-emerald-500/30",
-        accentTag: "bg-emerald-500/15",
-        accentTagText: "text-emerald-700 dark:text-emerald-300",
-    },
-    {
-        id: 2,
-        label: "Figma",
-        platform: "Design Tool",
-        cipher: "••••••_design",
-        accentBg: "bg-violet-500/10",
-        accentText: "text-violet-600 dark:text-violet-400",
-        accentBorder: "border-violet-500/30",
-        accentTag: "bg-violet-500/15",
-        accentTagText: "text-violet-700 dark:text-violet-300",
-    },
-    {
-        id: 3,
-        label: "Notion",
-        platform: "Productivity",
-        cipher: "••••••@work",
-        accentBg: "bg-orange-500/10",
-        accentText: "text-orange-600 dark:text-orange-400",
-        accentBorder: "border-orange-500/30",
-        accentTag: "bg-orange-500/15",
-        accentTagText: "text-orange-700 dark:text-orange-300",
-    },
-    {
-        id: 4,
-        label: "Twitter / X",
-        platform: "Social Media",
-        cipher: "•••••W",
-        accentBg: "bg-sky-500/10",
-        accentText: "text-sky-600 dark:text-sky-400",
-        accentBorder: "border-sky-500/30",
-        accentTag: "bg-sky-500/15",
-        accentTagText: "text-sky-700 dark:text-sky-300",
-    },
-    {
-        id: 5,
-        label: "Discord",
-        platform: "Community Chat",
-        cipher: "•••••#1337",
-        accentBg: "bg-indigo-500/10",
-        accentText: "text-indigo-600 dark:text-indigo-400",
-        accentBorder: "border-indigo-500/30",
-        accentTag: "bg-indigo-500/15",
-        accentTagText: "text-indigo-700 dark:text-indigo-300",
-    },
-    {
-        id: 6,
-        label: "Reddit",
-        platform: "Forum",
-        cipher: "u/••••••_anon",
-        accentBg: "bg-rose-500/10",
-        accentText: "text-rose-600 dark:text-rose-400",
-        accentBorder: "border-rose-500/30",
-        accentTag: "bg-rose-500/15",
-        accentTagText: "text-rose-700 dark:text-rose-300",
-    },
-];
+import { addNickname, getMemoryPoints } from "../../tauri_core/command_frontend"
 
 export default function NicknameManagerPage() {
     const [newNickname, setNewNickname] = useState("");
@@ -104,22 +15,19 @@ export default function NicknameManagerPage() {
     const [showDecryptDialog, setShowDecryptDialog] =
         useState(false);
     const [revealed, setRevealed] = useState(false);
-
-    const filtered = ALL_NICKNAMES.filter((n) => {
-        if (!committed) return true;
-        const q = committed.toLowerCase();
-        return (
-            n.label.toLowerCase().includes(q) ||
-            n.platform.toLowerCase().includes(q)
-        );
-    });
-
-    const handleSearchKey = (
-        e: React.KeyboardEvent<HTMLInputElement>,
-    ) => {
-        if (e.key === "Enter") setCommitted(query.trim());
-    };
-
+    const [pointList, setPointList] = useState<string[]>([]);
+    const [firstLoad, setFirstLoad] = useState<boolean>(true);
+    // 调用这个函数，触发加密point获取，搜寻与渲染
+    let flush = async () => {
+        let points = await getMemoryPoints();
+        points = points.map((p) => p.slice(0, 16) + '...')
+        setPointList(points);
+        setRevealed(false);
+    }
+    if (firstLoad) {
+        flush();
+        setFirstLoad(false);
+    }
     return (
         <div className="relative h-screen  flex justify-center">
             <div className="p-8 w-4/5 max-w-4xl  flex flex-col h-full">
@@ -134,7 +42,10 @@ export default function NicknameManagerPage() {
                     <button
                         onClick={() => {
                             if (!revealed) setShowDecryptDialog(true);
-                            else setRevealed(false);
+                            else {
+
+                                flush();
+                            }
                         }}
                         className={`shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg border text-sm transition-colors ${revealed
                             ? "bg-muted border-border text-muted-foreground hover:text-foreground"
@@ -160,7 +71,7 @@ export default function NicknameManagerPage() {
                             value={newKey}
                             onChange={(e) => setNewKey(e.target.value)}
                             placeholder="密钥"
-                            className="w-48 px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
+                            className="w-40 px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                         />
                         <button
                             onClick={async () => {
@@ -173,11 +84,12 @@ export default function NicknameManagerPage() {
                                 setAdding(true);
                                 try {
                                     await addNickname(newNickname.trim(), newKey);
-                                    setAddSuccess("Created");
+                                    setAddSuccess("添加成功");
                                     setNewNickname("");
                                     setNewKey("");
+                                    flush();
                                 } catch (e: any) {
-                                    setAddError(e?.message || "Create failed");
+                                    setAddError("添加失败,请检查密钥");
                                 } finally {
                                     setAdding(false);
                                 }
@@ -185,7 +97,7 @@ export default function NicknameManagerPage() {
                             disabled={adding}
                             className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition text-sm disabled:opacity-50"
                         >
-                            {adding ? "Creating..." : "Create"}
+                            {adding ? "添加中..." : "添加"}
                         </button>
                     </div>
                     {addError && <p className="text-xs text-destructive mt-2">{addError}</p>}
@@ -201,8 +113,7 @@ export default function NicknameManagerPage() {
                         type="text"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
-                        onKeyDown={handleSearchKey}
-                        placeholder="搜索所有包含关键词… (按Enter可搜索)"
+                        placeholder="搜索所有包含关键词…"
                         className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                     />
                     {committed && (
@@ -220,8 +131,7 @@ export default function NicknameManagerPage() {
 
                 {committed && (
                     <p className="text-xs text-muted-foreground mb-3">
-                        {filtered.length} result
-                        {filtered.length !== 1 ? "s" : ""} for "
+                        {pointList.length} 结果关于: "
                         <span className="text-foreground">{committed}</span>
                         "
                     </p>
@@ -229,53 +139,50 @@ export default function NicknameManagerPage() {
                 <ScrollArea className="flex-1 min-h-0 rounded-b-2xl">
                     {/* Nickname cards */}
                     <div className="grid gap-3">
-                        {filtered.length === 0 ? (
+                        {pointList.length === 0 ? (
                             <div className="py-12 text-center text-muted-foreground text-sm">
                                 No nicknames match your search.
                             </div>
                         ) : (
-                            filtered.map((n) => {
-                                const display = revealed
-                                    ? NICKNAME_PLAINTEXT[n.id]
-                                    : n.cipher;
+                            pointList.filter((n) => n.includes(query)).map((n, i) => {
                                 return (
                                     <div
-                                        key={n.id}
-                                        className={`flex items-center gap-4 p-4 rounded-xl border ${n.accentBorder} ${n.accentBg} transition-colors`}
+                                        key={i}
+                                        className={`flex items-center gap-4 p-4 rounded-xl border border-primary/30 bg-primary/5 transition-colors`}
                                     >
                                         {/* Color avatar */}
                                         <div
-                                            className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${n.accentTag}`}
+                                            className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-primary/10`}
                                         >
                                             <span
-                                                className={`text-base font-bold ${n.accentTagText}`}
+                                                className={`text-base font-bold text-primary`}
                                             >
-                                                {n.label[0]}
+                                                {i + 1}
                                             </span>
                                         </div>
 
                                         {/* Info */}
                                         <div className="flex-1 min-w-0">
                                             <div
-                                                className={`font-semibold ${n.accentText}`}
+                                                className={`font-semibold ${i + 1}`}
                                             >
-                                                {n.label}
+                                                Nickname {i + 1}
                                             </div>
                                             <div className="text-xs text-muted-foreground mb-1">
-                                                {n.platform}
+                                                Local
                                             </div>
                                             <div
                                                 className={`text-sm font-mono tracking-wide transition-all ${revealed ? "text-foreground" : "text-muted-foreground/60 select-none"}`}
                                             >
-                                                {display}
+                                                {n}
                                             </div>
                                         </div>
 
                                         {/* Platform tag */}
                                         <span
-                                            className={`hidden sm:inline-flex shrink-0 text-xs px-2.5 py-1 rounded-full font-medium ${n.accentTag} ${n.accentTagText}`}
+                                            className={`hidden sm:inline-flex shrink-0 text-xs px-2.5 py-1 rounded-full font-medium bg-primary/10 text-primary`}
                                         >
-                                            {n.platform}
+                                            Local
                                         </span>
                                     </div>
                                 );
@@ -288,7 +195,8 @@ export default function NicknameManagerPage() {
             {/* Decrypt dialog */}
             {showDecryptDialog && (
                 <NicknameDecryptDialog
-                    onSuccess={() => {
+                    onSuccess={(points) => {
+                        setPointList(points);
                         setRevealed(true);
                         setShowDecryptDialog(false);
                     }}
