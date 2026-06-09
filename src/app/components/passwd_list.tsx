@@ -24,7 +24,7 @@ export default function PasswdListTable({
                     {filtered.length === 0 ? (
                         <tr>
                             <td colSpan={4} className="px-4 py-10 text-center text-muted-foreground">
-                                No entries match your search.
+                                没有搜索到任何结果
                             </td>
                         </tr>
                     ) : (

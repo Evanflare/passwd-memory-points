@@ -137,7 +137,7 @@ export default function PasswordListPage() {
                 />
             )}
             <AddPasswordDialog
-                onClose={() => changeAddFlag(false)}
+                onClosed={() => changeAddFlag(false)}
                 onAdded={() => dispatch({ type: "added" })}
                 hidden={!addPasswdFlag}
             />
