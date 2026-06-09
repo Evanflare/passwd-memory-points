@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "passwd-nickname",
-  "version": "0.1.0",
+  "productName": "密码记忆点",
+  "version": "0.1.1",
   "identifier": "com.evanflare.passwd-nickname",
   "build": {
     "beforeDevCommand": "pnpm dev",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "passwd-nickname",
+        "title": "密码记忆点",
         "width": 800,
         "height": 600
       }
@@ -28,6 +28,9 @@
     }
   },
   "bundle": {
+    "android": {
+      "autoIncrementVersionCode": true
+    },
     "active": true,
     "targets": "all",
     "icon": [

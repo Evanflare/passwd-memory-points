@@ -1,5 +1,5 @@
 // src/components/dialog/add_password_dialog.tsx
-import { useEffect, useRef, useState, memo } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Plus, X, Shuffle } from "lucide-react";
 import { addPasswd, plaintextPoints } from "../../tauri_core/command_frontend";
 import { ScrollArea } from "../ui/scroll-area";
@@ -11,14 +11,6 @@ interface AddPasswordDialogProps {
     hidden: boolean;
 }
 
-// ---------- 优化后的自动完成输入框组件 ----------
-interface AutocompleteInputProps {
-    value: string;
-    onChange: (value: string) => void;
-    options: string[];
-    placeholder?: string;
-    onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-}
 
 // const AutocompleteInput = memo(function AutocompleteInput({
 //     value,

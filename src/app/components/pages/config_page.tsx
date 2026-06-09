@@ -3,9 +3,6 @@ import { ScrollArea } from "../ui/scroll-area";
 import { getConfig } from "../../tauri_core/command_frontend";
 
 export default function ConfigPage() {
-    const [autoLock, setAutoLock] = useState(true);
-    const [biometric, setBiometric] = useState(false);
-    const [clipboard, setClipboard] = useState(true);
     const [passwdFilePath, setPasswdFilePath] = useState("");
     const [configPath, setConfigPath] = useState("");
     const [defaultChar, setDefaultChar] = useState("");
@@ -16,22 +13,6 @@ export default function ConfigPage() {
         setDefaultChar(config.default_fill_char);
     };
     updateConfig();
-    const Toggle = ({
-        on,
-        onToggle,
-    }: {
-        on: boolean;
-        onToggle: () => void;
-    }) => (
-        <button
-            onClick={onToggle}
-            className={`relative w-11 h-6 rounded-full transition-colors ${on ? "bg-primary" : "bg-switch-background"}`}
-        >
-            <span
-                className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${on ? "translate-x-6" : "translate-x-1"}`}
-            />
-        </button>
-    );
 
     return (
         <div className="relative  h-screen w-full flex justify-center p-8">
