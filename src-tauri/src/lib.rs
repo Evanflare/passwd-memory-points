@@ -30,7 +30,9 @@ pub fn run() {
             search_passwds,
             get_config,
             add_passwd,
-            update_passwd
+            update_passwd,
+            del_memory_point,
+            del_passwd_by_uid
         ])
         .run(generate_context!())
         .expect("error while running tauri application");
