@@ -8,7 +8,7 @@ pub mod search_commands;
 pub mod update_commands;
 // 重导出
 pub use add_commands::*;
-// pub use del_commands::*;
+pub use del_commands::*;
 pub use dto::*;
 pub use get_commands::*;
 pub use list_commands::*;

@@ -98,3 +98,15 @@ export async function updateConfig(): Promise<string> {
     //todo
     return ""
 }
+//pub fn del_memory_point(
+//point_str: & str,
+//secret_key: & str,
+export async function del_memory_point(point_str: string, secret_key: string) {
+    return await invoke("del_memory_point", { point_str, secret_key });
+}
+//pub fn del_passwd_by_uid(
+//uid: & str,
+//secret_key: & str,
+export async function del_passwd_by_uid(uid: string, secret_key: string) {
+    return await invoke("del_passwd_by_uid", { uid, secret_key });
+}

@@ -179,9 +179,28 @@ export default function NicknameManagerPage({ isAndroid }: { isAndroid: boolean 
 
                                         {/* Platform tag */}
                                         <span
-                                            className={`hidden sm:inline-flex shrink-0 text-xs px-2.5 py-1 rounded-full font-medium bg-primary/10 text-primary`}
+                                            className={`
+    ${revealed ? '' : 'invisible'} 
+    sm:inline-flex 
+    shrink-0 
+    items-center      // 确保内容垂直居中
+    text-xs 
+    px-2.5 py-1 
+    rounded-full 
+    font-medium 
+    bg-red-50          // 浅红色背景（也可用 bg-destructive/10）
+    text-red-600       // 深红色文字（也可用 text-destructive）
+    hover:bg-red-100   // 悬停加深背景
+    hover:text-red-700 // 悬停加深文字（可选）
+    cursor-pointer     // 鼠标指针变为手型
+    transition-colors  // 颜色过渡平滑
+    duration-200       // 过渡时长
+  `}
+                                            onClick={() => {
+                                                // 弹窗是否删除，并需要输入密码
+                                            }}
                                         >
-                                            Local
+                                            删除
                                         </span>
                                     </div>
                                 );
