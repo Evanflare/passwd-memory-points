@@ -357,18 +357,6 @@ export default function AddPasswordDialog({ onClosed, onAdded, hidden }: AddPass
                                     />
                                 </div>
 
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-sm">随机串</label>
-                                    <input
-                                        type="text"
-                                        value={unique}
-                                        onChange={(e) => setUnique(e.target.value)}
-                                        onKeyDown={handleKeyDown}
-                                        placeholder="随便填一个值，确保每个密码都不一样！"
-                                        className="w-full px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
-                                    />
-                                </div>
-
 
                                 <div className="flex flex-col gap-2">
                                     <label className="text-sm">密码记忆点 *</label>
@@ -403,6 +391,19 @@ export default function AddPasswordDialog({ onClosed, onAdded, hidden }: AddPass
                                         这些关键词会被连接在一起但通过空格分隔,如果选择了随机打乱那么顺序将会变化。
                                     </p>
                                 </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-sm">随机串</label>
+                                    <input
+                                        type="text"
+                                        value={unique}
+                                        onChange={(e) => setUnique(e.target.value)}
+                                        onKeyDown={handleKeyDown}
+                                        placeholder="随便填一个值，确保每个密码都不一样！"
+                                        className="w-full px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
+                                    />
+                                </div>
+
+
                                 <div className="flex items-center gap-3">
                                     <label className="text-sm flex items-center gap-2 cursor-pointer">
                                         <input

@@ -36,7 +36,7 @@ pub fn del_passwd_by_uid(
     // 先校验密码是否正确
     match check_secret_right_or_error(&passwd_vector, secret_key) {
         Ok(_) => {}
-        Err(_) => return Err(Error::SecretKeyError("密码是正确".to_string())),
+        Err(_) => return Err(Error::SecretKeyError("密码不正确".to_string())),
     }
     if passwd_vector.remove_passwd_by_unique_id(uid) {
         return Ok(());

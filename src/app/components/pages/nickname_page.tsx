@@ -2,79 +2,9 @@ import { Search, X, Lock } from "lucide-react";
 import { useState } from "react";
 import NicknameDecryptDialog from "../dialog/nickname_decrypt";
 import { ScrollArea } from "../ui/scroll-area";
-import { addNickname, getMemoryPoints, del_memory_point } from "../../tauri_core/command_frontend";
+import { addNickname, getMemoryPoints, del_memory_point, plaintextPoints } from "../../tauri_core/command_frontend";
+import { DeleteConfirmDialog } from "../dialog/DeleteConfirmDialog";
 
-// 删除确认对话框组件
-function DeleteConfirmDialog({
-    open,
-    pointStr,
-    onClose,
-    onSuccess,
-}: {
-    open: boolean;
-    pointStr: string | null;
-    onClose: () => void;
-    onSuccess: () => void;
-}) {
-    const [password, setPassword] = useState("");
-    const [deleting, setDeleting] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    const handleDelete = async () => {
-        if (!pointStr || !password.trim()) {
-            setError("请输入密钥");
-            return;
-        }
-        setDeleting(true);
-        setError(null);
-        try {
-            await del_memory_point(pointStr, password.trim());
-            onSuccess();
-            onClose();
-        } catch (e: any) {
-            setError(e || "删除失败，请检查密钥");
-        } finally {
-            setDeleting(false);
-        }
-    };
-
-    if (!open) return null;
-
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-background rounded-2xl shadow-xl w-full max-w-md p-6 border border-border">
-                <h3 className="text-lg font-semibold mb-2">确认删除</h3>
-                <p className="text-muted-foreground text-sm mb-4">
-                    此操作不可撤销，请输入您的密钥以确认删除该记忆点。
-                </p>
-                <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="密钥"
-                    className="w-full px-3 py-2 rounded-lg bg-input-background border border-border text-sm focus:border-primary outline-none transition-colors mb-4"
-                    autoFocus
-                />
-                {error && <p className="text-destructive text-xs mb-3">{error}</p>}
-                <div className="flex justify-end gap-3">
-                    <button
-                        onClick={onClose}
-                        className="px-4 py-2 rounded-lg text-sm border border-border hover:bg-muted transition-colors"
-                    >
-                        取消
-                    </button>
-                    <button
-                        onClick={handleDelete}
-                        disabled={deleting}
-                        className="px-4 py-2 rounded-lg text-sm bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors disabled:opacity-50"
-                    >
-                        {deleting ? "删除中..." : "确认删除"}
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-}
 
 export default function NicknameManagerPage({ isAndroid }: { isAndroid: boolean }) {
     const [newNickname, setNewNickname] = useState("");
@@ -169,7 +99,7 @@ export default function NicknameManagerPage({ isAndroid }: { isAndroid: boolean 
                                 setAddError(null);
                                 setAddSuccess(null);
                                 if (!newNickname.trim() || !newKey.trim()) {
-                                    setAddError("Nickname and secret are required");
+                                    setAddError("记忆点和密钥是必填项");
                                     return;
                                 }
                                 setAdding(true);
@@ -178,7 +108,9 @@ export default function NicknameManagerPage({ isAndroid }: { isAndroid: boolean 
                                     setAddSuccess("添加成功");
                                     setNewNickname("");
                                     setNewKey("");
-                                    flush();
+                                    let plaintext_points = await plaintextPoints(newKey)
+                                    setFullPoints(plaintext_points);
+                                    setRevealed(true);
                                 } catch (e: any) {
                                     setAddError("添加失败,请检查密钥");
                                 } finally {
@@ -297,11 +229,12 @@ export default function NicknameManagerPage({ isAndroid }: { isAndroid: boolean 
             {/* 删除确认对话框 */}
             <DeleteConfirmDialog
                 open={deleteDialogOpen}
-                pointStr={pointToDelete}
+                deleteKey={pointToDelete}
                 onClose={() => {
                     setDeleteDialogOpen(false);
                     setPointToDelete(null);
                 }}
+                deleteFunction={del_memory_point}
                 onSuccess={() => {
                     setFullPoints((current_points) => {
                         return current_points.filter((p) => p !== pointToDelete)

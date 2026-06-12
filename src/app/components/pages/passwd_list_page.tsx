@@ -1,22 +1,28 @@
-import { PasswdSummary, searchPasswds } from "../../tauri_core/command_frontend";
+import { PasswdSummary, searchPasswds, del_passwd_by_uid } from "../../tauri_core/command_frontend";
 import PasswdListTable from "../../components/passwd_list";
 import { Search, X, Plus } from "lucide-react";
-import { useState, useEffect } from "react"; // 引入 useEffect
+import { useState, useEffect } from "react";
 import DecryptDialog from "../dialog/decrypt_dialog";
 import { actionReducer, init_state } from "./dispacher/passwd_dispacher";
 import { useImmerReducer } from "use-immer";
 import AddPasswordDialog from "../dialog/add_passwd_dialog";
 import { ScrollArea } from "../ui/scroll-area";
 import UpdatePasswdDialog from "../dialog/update_passwd_dialog";
+import { DeleteConfirmDialog } from "../dialog/DeleteConfirmDialog";
 
 export default function PasswordListPage({ isAndroid }: { isAndroid: boolean }) {
-    console.log("组件渲染开始"); // 1. 确认组件是否渲染
+    console.log("组件渲染开始");
 
     const [decryptTarget, setDecryptTarget] = useState<PasswdSummary | null>(null);
     const [passwdState, dispatch] = useImmerReducer(actionReducer, init_state);
     const [addPasswdFlag, changeAddFlag] = useState<boolean>(false);
     const [updateTarget, setUpdateTarget] = useState<PasswdSummary | null>(null);
-    console.log("当前 passwdState:", passwdState); // 2. 查看状态
+
+    // 删除对话框状态
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [deleteTargetUid, setDeleteTargetUid] = useState<string | null>(null);
+
+    console.log("当前 passwdState:", passwdState);
 
     useEffect(() => {
         console.log("首次加载 useEffect 触发");
@@ -37,6 +43,7 @@ export default function PasswordListPage({ isAndroid }: { isAndroid: boolean }) 
         };
         doSearch();
     }, [passwdState.query]);
+
     useEffect(() => {
         console.log("flushList 变化 useEffect 触发");
         const doSearch = async () => {
@@ -52,6 +59,22 @@ export default function PasswordListPage({ isAndroid }: { isAndroid: boolean }) 
         doSearch();
     }, [passwdState.flushList]);
 
+    // 删除回调（供对话框使用）
+    const handleDeletePasswd = async (uid: string, password: string) => {
+        await del_passwd_by_uid(uid, password);
+    };
+
+    // 删除成功后的刷新
+    const handleDeleteSuccess = () => {
+        dispatch({ type: 'changed' }); // 触发列表刷新
+    };
+
+    // 打开删除对话框
+    const onDeleteClick = (uid: string) => {
+        setDeleteTargetUid(uid);
+        setDeleteDialogOpen(true);
+    };
+
     return (
         <div className="relative flex-1 flex justify-center h-full">
             <div className={`${isAndroid ? 'p-6 w-full' : 'p-8 w-4/5 max-w-4xl'} flex flex-col h-full`} >
@@ -60,7 +83,7 @@ export default function PasswordListPage({ isAndroid }: { isAndroid: boolean }) 
                     管理你的密码记忆，添加一个密码记忆？
                 </p>
 
-                {/* Search — always visible above results */}
+                {/* Search */}
                 <div className="relative mb-5">
                     <Search
                         size={15}
@@ -81,7 +104,7 @@ export default function PasswordListPage({ isAndroid }: { isAndroid: boolean }) 
                     {passwdState.query && (
                         <button
                             onClick={() => {
-                                // 此方法被废弃
+                                dispatch({ type: "search", query: "" });
                             }}
                             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                         >
@@ -93,18 +116,17 @@ export default function PasswordListPage({ isAndroid }: { isAndroid: boolean }) 
                 {passwdState.query && (
                     <p className="text-xs text-muted-foreground mb-3">
                         {passwdState.filtered_list.length} 结果 关于:
-                        {/* {passwdState.filtered_list.length !== 1 ? "s" : ""} 关于" */}
                         <span className="text-foreground">{passwdState.query}</span>
                         "
                     </p>
                 )}
                 <ScrollArea className="flex-1 min-h-0 rounded-b-2xl">
-
-                    {/* Table */}
+                    {/* Table — 新增 onDelete 属性 */}
                     <PasswdListTable
                         filtered={passwdState.filtered_list}
                         setDecryptTarget={setDecryptTarget}
                         onRowClick={setUpdateTarget}
+                        onDelete={onDeleteClick}   // 传递删除回调
                     />
                 </ScrollArea>
             </div>
@@ -114,38 +136,44 @@ export default function PasswordListPage({ isAndroid }: { isAndroid: boolean }) 
                 onClick={() => changeAddFlag(true)}
                 className={`fixed ${isAndroid ? 'bottom-28' : 'bottom-8'} right-8 flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-foreground shadow-lg hover:opacity-90 active:scale-95 transition-all`}>
                 <Plus size={16} />
-
             </button>
 
             {/* Decrypt dialog */}
-            {
-                decryptTarget && (
-                    <DecryptDialog
-                        entry={decryptTarget}
-                        onClose={() => setDecryptTarget(null)}
-                        dispacher={dispatch}
-                    />
-                )
-            }
-            {
-                updateTarget && (
-                    <UpdatePasswdDialog
-                        passwd={updateTarget}
-                        hidden={false}
-                        onClose={() => setUpdateTarget(null)}
-                        onUpdated={() => {
-                            setUpdateTarget(null);
-                            dispatch({ type: "changed" }); // 刷新列表或使用你已有的 action
-                        }}
-                    />
-                )
-            }
+            {decryptTarget && (
+                <DecryptDialog
+                    entry={decryptTarget}
+                    onClose={() => setDecryptTarget(null)}
+                    dispacher={dispatch}
+                />
+            )}
+            {updateTarget && (
+                <UpdatePasswdDialog
+                    passwd={updateTarget}
+                    hidden={false}
+                    onClose={() => setUpdateTarget(null)}
+                    onUpdated={() => {
+                        setUpdateTarget(null);
+                        dispatch({ type: "changed" });
+                    }}
+                />
+            )}
             <AddPasswordDialog
                 onClosed={() => changeAddFlag(false)}
                 onAdded={() => dispatch({ type: "added" })}
                 hidden={!addPasswdFlag}
             />
 
-        </div >
+            {/* 通用删除确认对话框 */}
+            <DeleteConfirmDialog
+                open={deleteDialogOpen}
+                deleteKey={deleteTargetUid}
+                deleteFunction={handleDeletePasswd}
+                onClose={() => {
+                    setDeleteDialogOpen(false);
+                    setDeleteTargetUid(null);
+                }}
+                onSuccess={handleDeleteSuccess}
+            />
+        </div>
     );
 }
