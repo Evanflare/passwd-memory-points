@@ -13,7 +13,6 @@ export default function NicknameManagerPage({ isAndroid }: { isAndroid: boolean 
     const [addError, setAddError] = useState<string | null>(null);
     const [addSuccess, setAddSuccess] = useState<string | null>(null);
     const [query, setQuery] = useState("");
-    const [committed, setCommitted] = useState("");
     const [showDecryptDialog, setShowDecryptDialog] = useState(false);
     const [revealed, setRevealed] = useState(false);
     // 存储完整点列表（加密后的原始字符串）
@@ -144,7 +143,6 @@ export default function NicknameManagerPage({ isAndroid }: { isAndroid: boolean 
                         <button
                             onClick={() => {
                                 setQuery("");
-                                setCommitted("");
                             }}
                             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                         >
