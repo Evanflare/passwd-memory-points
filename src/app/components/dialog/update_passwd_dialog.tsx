@@ -132,8 +132,8 @@ export default function EditPasswdDialog({ passwd, hidden, onClose, onUpdated }:
                             <Edit3 size={15} className="text-primary" />
                         </div>
                         <div>
-                            <div className="font-semibold">View / Edit Entry</div>
-                            <div className="text-xs text-muted-foreground">Enter secret to unlock and edit</div>
+                            <div className="font-semibold">查看 或者 编辑</div>
+                            <div className="text-xs text-muted-foreground">详细的展示内容</div>
                         </div>
                     </div>
                     <button
@@ -149,16 +149,16 @@ export default function EditPasswdDialog({ passwd, hidden, onClose, onUpdated }:
                         {stage === "auth" ? (
                             <>
                                 <div className="flex flex-col gap-1.5">
-                                    <label className="text-sm">Secret Key</label>
+                                    <label className="text-sm">校验密钥</label>
                                     <input
                                         type="password"
                                         value={secret}
                                         onChange={(e) => setSecret(e.target.value)}
-                                        placeholder="Enter your master key to unlock"
+                                        placeholder="输入你的密钥"
                                         className="w-full px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                                         onKeyDown={(e) => { if (e.key === "Enter") handleUnlock(); }}
                                     />
-                                    <p className="text-xs text-muted-foreground">You must authenticate to view or edit this entry.</p>
+                                    <p className="text-xs text-muted-foreground">你需要先通过密钥校验之后才能查看详细内容</p>
                                     {keyError && <p className="text-xs text-destructive">{keyError}</p>}
                                 </div>
                                 <div className="flex gap-2">
@@ -167,7 +167,7 @@ export default function EditPasswdDialog({ passwd, hidden, onClose, onUpdated }:
                                         disabled={loading || !secret}
                                         className="py-2 px-4 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition text-sm disabled:opacity-50"
                                     >
-                                        {loading ? "Unlocking..." : "Unlock"}
+                                        {loading ? "解锁中..." : "解锁"}
                                     </button>
                                     <button
                                         onClick={() => {
@@ -175,7 +175,7 @@ export default function EditPasswdDialog({ passwd, hidden, onClose, onUpdated }:
                                         }}
                                         className="py-2 px-4 rounded-lg border border-border bg-muted/10 text-muted-foreground hover:bg-muted/20 transition text-sm"
                                     >
-                                        Cancel
+                                        重置
                                     </button>
                                 </div>
                             </>
@@ -184,8 +184,8 @@ export default function EditPasswdDialog({ passwd, hidden, onClose, onUpdated }:
                                 {/* Name */}
                                 <div className={`flex flex-col gap-1.5 ${isFieldChanged.name ? "ring-2 ring-yellow-300 rounded-md p-2" : ""}`}>
                                     <label className="text-sm flex items-center justify-between">
-                                        <span>Name</span>
-                                        {isFieldChanged.name && <span className="text-xs text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full">Modified</span>}
+                                        <span>名称</span>
+                                        {isFieldChanged.name && <span className="text-xs text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full">修改部分</span>}
                                     </label>
                                     <input
                                         ref={nameRef}
@@ -199,8 +199,8 @@ export default function EditPasswdDialog({ passwd, hidden, onClose, onUpdated }:
                                 {/* Description */}
                                 <div className={`flex flex-col gap-1.5 ${isFieldChanged.description ? "ring-2 ring-yellow-300 rounded-md p-2" : ""}`}>
                                     <label className="text-sm flex items-center justify-between">
-                                        <span>Description</span>
-                                        {isFieldChanged.description && <span className="text-xs text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full">Modified</span>}
+                                        <span>描述</span>
+                                        {isFieldChanged.description && <span className="text-xs text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full">修改部分</span>}
                                     </label>
                                     <textarea
                                         value={description}
@@ -228,8 +228,8 @@ export default function EditPasswdDialog({ passwd, hidden, onClose, onUpdated }:
                                 {/* Decrypted password with press-and-hold reveal */}
                                 <div className={`flex flex-col gap-1.5 ${isFieldChanged.plaintext ? "ring-2 ring-yellow-300 rounded-md p-2" : ""}`}>
                                     <label className="text-sm flex items-center justify-between">
-                                        <span>Password</span>
-                                        {isFieldChanged.plaintext && <span className="text-xs text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full">Modified</span>}
+                                        <span>密码记忆</span>
+                                        {isFieldChanged.plaintext && <span className="text-xs text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full">修改部分</span>}
                                     </label>
                                     <div className="relative">
                                         <input
@@ -262,7 +262,7 @@ export default function EditPasswdDialog({ passwd, hidden, onClose, onUpdated }:
                                         disabled={saving || (!isFieldChanged.name && !isFieldChanged.description && !isFieldChanged.unique && !isFieldChanged.plaintext)}
                                         className="py-2 px-4 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition text-sm disabled:opacity-50"
                                     >
-                                        {saving ? "Saving..." : "Save Changes"}
+                                        {saving ? "保存中..." : "保存修改"}
                                     </button>
                                     <button
                                         onClick={() => {
@@ -274,7 +274,7 @@ export default function EditPasswdDialog({ passwd, hidden, onClose, onUpdated }:
                                         }}
                                         className="py-2 px-4 rounded-lg border border-border bg-muted/10 text-muted-foreground hover:bg-muted/20 transition text-sm"
                                     >
-                                        Revert
+                                        恢复
                                     </button>
                                 </div>
                             </>

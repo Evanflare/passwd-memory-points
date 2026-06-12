@@ -1,4 +1,5 @@
-use crate::{error::Error, utils::passwd_vec_utils::check_secret_right_or_error};
+use crate::error::Error;
+use crate::utils::passwd_vec_utils::check_secret_right_or_error;
 use nickname_passwd::passwd::{nickname::Nickname, Passwd, PasswdVector};
 use std::sync::Mutex;
 use tauri::State;
@@ -11,6 +12,10 @@ pub fn add_nickname(
     state: State<'_, Mutex<PasswdVector>>,
 ) -> Result<bool, Error> {
     let mut passwd_vector = state.lock().unwrap();
+    // 校验密码是否正确
+    if let Err(_) = check_secret_right_or_error(&passwd_vector, &key) {
+        return Err(Error::SecretKeyError("密钥不正确".to_string()));
+    }
     passwd_vector.nickname.add_nickname(&nickname, &key);
     passwd_vector
         .store()

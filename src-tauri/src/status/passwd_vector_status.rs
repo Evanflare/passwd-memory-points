@@ -1,8 +1,6 @@
-use nickname_passwd::{
-    config::{AppConfig, PASSWD_FILE_NAME, PROFILE_NAME},
-    passwd::PasswdVector,
-};
 use std::path::PathBuf;
+
+use nickname_passwd::{config::AppConfig, passwd::PasswdVector};
 use tauri::{App, Manager};
 /// 用 AppHandle 在 Android（优先）与其它平台上解析 confy/config.toml 的路径
 /// 直接得到passwd_vector_status
@@ -40,17 +38,18 @@ pub fn get_passwd_vector_by_apphandle(app: &App) -> PasswdVector {
 
     if cfg!(target_os = "android") {
         if let Ok(appdata) = app.path().app_data_dir() {
-            if let Ok(cfg) = AppConfig::create_from_basedir(&appdata) {
-                return PasswdVector::read_or_create(cfg);
+            match AppConfig::read_or_create_from_basedir(&appdata) {
+                Ok(cfg) => return PasswdVector::read_or_create(cfg),
+                Err(_) => return PasswdVector::read_or_create(AppConfig::default()),
             }
         }
     }
 
-    // 非 Android 平台仍然使用通用计算（confy 风格）
+    // 非 Android 平台仍然使用通用计算
     if cfg!(target_os = "windows") {
         if let Ok(appdata) = std::env::var("APPDATA") {
             let p = PathBuf::from(appdata);
-            if let Ok(cfg) = AppConfig::create_from_basedir(&p) {
+            if let Ok(cfg) = AppConfig::read_or_create_from_basedir(&p) {
                 return PasswdVector::read_or_create(cfg);
             }
         }

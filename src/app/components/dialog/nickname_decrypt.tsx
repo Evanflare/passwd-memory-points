@@ -1,11 +1,13 @@
 import { X, Lock } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { plaintextPoints } from "../../tauri_core/command_frontend";
 
+/// 当校验密码成功的时候，会返回一个明文的points列表。
 export default function NicknameDecryptDialog({
     onSuccess,
     onClose,
 }: {
-    onSuccess: () => void;
+    onSuccess: (points: string[]) => void;
     onClose: () => void;
 }) {
     const [secretKey, setSecretKey] = useState("");
@@ -21,9 +23,10 @@ export default function NicknameDecryptDialog({
         return () => window.removeEventListener("keydown", onKey);
     }, [onClose]);
 
-    const attempt = useCallback(() => {
-        if (secretKey === "1234") {
-            onSuccess();
+    const attempt = useCallback(async () => {
+        let plaintext_points = await plaintextPoints(secretKey);
+        if (plaintext_points) {
+            onSuccess(plaintext_points);
         } else {
             setError(true);
         }
@@ -50,10 +53,10 @@ export default function NicknameDecryptDialog({
                         </div>
                         <div>
                             <div className="font-semibold">
-                                Decrypt Nicknames
+                                解密所有记忆点
                             </div>
                             <div className="text-xs text-muted-foreground">
-                                Reveal all aliases at once
+                                展示记忆点集
                             </div>
                         </div>
                     </div>
@@ -66,7 +69,7 @@ export default function NicknameDecryptDialog({
                 </div>
                 <div className="px-6 py-5 flex flex-col gap-4">
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-sm">Secret Key</label>
+                        <label className="text-sm">密钥</label>
                         <input
                             ref={inputRef}
                             type="password"
@@ -76,7 +79,7 @@ export default function NicknameDecryptDialog({
                                 setError(false);
                             }}
                             onKeyDown={handleKeyDown}
-                            placeholder="Press Enter to confirm…"
+                            placeholder="按Enter确认"
                             className={`w-full px-3 py-2 rounded-lg bg-input-background border text-sm outline-none transition-colors ${error
                                 ? "border-destructive"
                                 : "border-border focus:border-primary"
@@ -84,21 +87,21 @@ export default function NicknameDecryptDialog({
                         />
                         {error && (
                             <p className="text-xs text-destructive">
-                                Incorrect secret key. Try again.
+                                密钥不正确，请重新尝试
                             </p>
                         )}
-                        <p className="text-xs text-muted-foreground">
+                        {/* <p className="text-xs text-muted-foreground">
                             Demo hint: the key is{" "}
                             <code className="bg-muted px-1 rounded">
                                 1234
                             </code>
-                        </p>
+                        </p> */}
                     </div>
                     <button
                         onClick={attempt}
                         className="w-full py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity text-sm"
                     >
-                        Reveal All Nicknames
+                        确认
                     </button>
                 </div>
             </div>

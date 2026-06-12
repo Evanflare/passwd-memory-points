@@ -24,9 +24,17 @@ pub fn list_passwds(state: State<'_, Mutex<PasswdVector>>) -> Result<Vec<PasswdS
     Ok(summaries)
 }
 
-/// 根据唯一ID获取密码条目的明文密码，前端需要提供一个密钥来解密密码条目中的加密密码
+/// 获取加密的points
 #[tauri::command]
-pub fn list_nicknames(
+pub fn get_memory_points(state: State<'_, Mutex<PasswdVector>>) -> Result<Vec<String>, Error> {
+    let passwd_vector = state.lock().unwrap();
+    let nicknames = passwd_vector.nickname.get_string_array();
+    Ok(nicknames)
+}
+
+/// 获取明文的points,需要传入key参数
+#[tauri::command]
+pub fn plaintext_points(
     key: String,
     state: State<'_, Mutex<PasswdVector>>,
 ) -> Result<Vec<String>, Error> {

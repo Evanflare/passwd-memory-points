@@ -1,99 +1,12 @@
-import { Plus, Search, X, Lock } from "lucide-react";
+import { Search, X, Lock } from "lucide-react";
 import { useState } from "react";
 import NicknameDecryptDialog from "../dialog/nickname_decrypt";
 import { ScrollArea } from "../ui/scroll-area";
-import { addNickname } from "../../tauri_core/command_frontend"
-const NICKNAME_PLAINTEXT: Record<number, string> = {
-    1: "alice_dev",
-    2: "alice_design",
-    3: "alice@work",
-    4: "aliceW",
-    5: "alice#1337",
-    6: "u/alice_anon",
-};
+import { addNickname, getMemoryPoints, del_memory_point, plaintextPoints } from "../../tauri_core/command_frontend";
+import { DeleteConfirmDialog } from "../dialog/DeleteConfirmDialog";
 
-type NicknameEntry = {
-    id: number;
-    label: string;
-    platform: string;
-    cipher: string;
-    accentBg: string;
-    accentText: string;
-    accentBorder: string;
-    accentTag: string;
-    accentTagText: string;
-};
 
-const ALL_NICKNAMES: NicknameEntry[] = [
-    {
-        id: 1,
-        label: "GitHub",
-        platform: "Developer Platform",
-        cipher: "••••••••_dev",
-        accentBg: "bg-emerald-500/10",
-        accentText: "text-emerald-600 dark:text-emerald-400",
-        accentBorder: "border-emerald-500/30",
-        accentTag: "bg-emerald-500/15",
-        accentTagText: "text-emerald-700 dark:text-emerald-300",
-    },
-    {
-        id: 2,
-        label: "Figma",
-        platform: "Design Tool",
-        cipher: "••••••_design",
-        accentBg: "bg-violet-500/10",
-        accentText: "text-violet-600 dark:text-violet-400",
-        accentBorder: "border-violet-500/30",
-        accentTag: "bg-violet-500/15",
-        accentTagText: "text-violet-700 dark:text-violet-300",
-    },
-    {
-        id: 3,
-        label: "Notion",
-        platform: "Productivity",
-        cipher: "••••••@work",
-        accentBg: "bg-orange-500/10",
-        accentText: "text-orange-600 dark:text-orange-400",
-        accentBorder: "border-orange-500/30",
-        accentTag: "bg-orange-500/15",
-        accentTagText: "text-orange-700 dark:text-orange-300",
-    },
-    {
-        id: 4,
-        label: "Twitter / X",
-        platform: "Social Media",
-        cipher: "•••••W",
-        accentBg: "bg-sky-500/10",
-        accentText: "text-sky-600 dark:text-sky-400",
-        accentBorder: "border-sky-500/30",
-        accentTag: "bg-sky-500/15",
-        accentTagText: "text-sky-700 dark:text-sky-300",
-    },
-    {
-        id: 5,
-        label: "Discord",
-        platform: "Community Chat",
-        cipher: "•••••#1337",
-        accentBg: "bg-indigo-500/10",
-        accentText: "text-indigo-600 dark:text-indigo-400",
-        accentBorder: "border-indigo-500/30",
-        accentTag: "bg-indigo-500/15",
-        accentTagText: "text-indigo-700 dark:text-indigo-300",
-    },
-    {
-        id: 6,
-        label: "Reddit",
-        platform: "Forum",
-        cipher: "u/••••••_anon",
-        accentBg: "bg-rose-500/10",
-        accentText: "text-rose-600 dark:text-rose-400",
-        accentBorder: "border-rose-500/30",
-        accentTag: "bg-rose-500/15",
-        accentTagText: "text-rose-700 dark:text-rose-300",
-    },
-];
-
-export default function NicknameManagerPage() {
+export default function NicknameManagerPage({ isAndroid }: { isAndroid: boolean }) {
     const [newNickname, setNewNickname] = useState("");
     const [newKey, setNewKey] = useState("");
     const [adding, setAdding] = useState(false);
@@ -101,40 +14,58 @@ export default function NicknameManagerPage() {
     const [addSuccess, setAddSuccess] = useState<string | null>(null);
     const [query, setQuery] = useState("");
     const [committed, setCommitted] = useState("");
-    const [showDecryptDialog, setShowDecryptDialog] =
-        useState(false);
+    const [showDecryptDialog, setShowDecryptDialog] = useState(false);
     const [revealed, setRevealed] = useState(false);
+    // 存储完整点列表（加密后的原始字符串）
+    const [fullPoints, setFullPoints] = useState<string[]>([]);
+    const [firstLoad, setFirstLoad] = useState<boolean>(true);
 
-    const filtered = ALL_NICKNAMES.filter((n) => {
-        if (!committed) return true;
-        const q = committed.toLowerCase();
-        return (
-            n.label.toLowerCase().includes(q) ||
-            n.platform.toLowerCase().includes(q)
-        );
-    });
+    // 删除对话框状态
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [pointToDelete, setPointToDelete] = useState<string | null>(null);
 
-    const handleSearchKey = (
-        e: React.KeyboardEvent<HTMLInputElement>,
-    ) => {
-        if (e.key === "Enter") setCommitted(query.trim());
+    const flush = async () => {
+        const points = await getMemoryPoints(); // 完整加密字符串列表
+        setFullPoints(points);
+        setRevealed(false);
     };
 
+    if (firstLoad) {
+        flush();
+        setFirstLoad(false);
+    }
+
+    // 显示时截断（取前16字符 + ...）
+    const displayPoints = fullPoints.map((p) => {
+        if (!revealed) return p.slice(0, 16) + "...";
+        else return p;
+    }
+    )
+
+
+    // 根据搜索词过滤（基于完整字符串）
+    const filteredIndices = fullPoints.reduce<number[]>((acc, point, idx) => {
+        if (point.includes(query)) acc.push(idx);
+        return acc;
+    }, []);
+
     return (
-        <div className="relative h-screen  flex justify-center">
-            <div className="p-8 w-4/5 max-w-4xl  flex flex-col h-full">
+        <div className="relative h-full flex justify-center">
+            <div
+                className={`${isAndroid ? "p-6 w-full" : "p-8 w-4/5 max-w-4xl"} flex flex-col h-full`}
+            >
+                {/* 头部区域保持不变 */}
                 <div className="flex items-start justify-between gap-4 mb-6">
                     <div>
-                        <h1 className="mb-1">Nickname Manager</h1>
+                        <h1 className="mb-1">记忆点集</h1>
                         <p className="text-muted-foreground">
-                            Track which alias you use on each platform.
+                            每个记忆点都帮助你加密你的密码。
                         </p>
                     </div>
-                    {/* Single page-level decrypt button */}
                     <button
                         onClick={() => {
                             if (!revealed) setShowDecryptDialog(true);
-                            else setRevealed(false);
+                            else flush();
                         }}
                         className={`shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg border text-sm transition-colors ${revealed
                             ? "bg-muted border-border text-muted-foreground hover:text-foreground"
@@ -142,42 +73,46 @@ export default function NicknameManagerPage() {
                             }`}
                     >
                         <Lock size={13} />
-                        {revealed ? "Lock All" : "Decrypt All"}
+                        {revealed ? "恢复密文" : "显示明文"}
                     </button>
                 </div>
-                {/* Add Nickname — simple form */}
+
+                {/* 添加记忆点表单保持不变 */}
                 <div className="mb-6">
-                    <div className="flex gap-2 items-center">
+                    <div className="flex gap-2 items-center flex-wrap">
                         <input
                             type="text"
                             value={newNickname}
                             onChange={(e) => setNewNickname(e.target.value)}
-                            placeholder="New nickname"
+                            placeholder="新建一个记忆点"
                             className="flex-1 px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                         />
                         <input
                             type="password"
                             value={newKey}
                             onChange={(e) => setNewKey(e.target.value)}
-                            placeholder="Secret"
-                            className="w-48 px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
+                            placeholder="密钥"
+                            className="w-40 px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                         />
                         <button
                             onClick={async () => {
                                 setAddError(null);
                                 setAddSuccess(null);
                                 if (!newNickname.trim() || !newKey.trim()) {
-                                    setAddError("Nickname and secret are required");
+                                    setAddError("记忆点和密钥是必填项");
                                     return;
                                 }
                                 setAdding(true);
                                 try {
                                     await addNickname(newNickname.trim(), newKey);
-                                    setAddSuccess("Created");
+                                    setAddSuccess("添加成功");
                                     setNewNickname("");
                                     setNewKey("");
+                                    let plaintext_points = await plaintextPoints(newKey)
+                                    setFullPoints(plaintext_points);
+                                    setRevealed(true);
                                 } catch (e: any) {
-                                    setAddError(e?.message || "Create failed");
+                                    setAddError("添加失败,请检查密钥");
                                 } finally {
                                     setAdding(false);
                                 }
@@ -185,13 +120,14 @@ export default function NicknameManagerPage() {
                             disabled={adding}
                             className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition text-sm disabled:opacity-50"
                         >
-                            {adding ? "Creating..." : "Create"}
+                            {adding ? "添加中..." : "添加"}
                         </button>
                     </div>
                     {addError && <p className="text-xs text-destructive mt-2">{addError}</p>}
                     {addSuccess && <p className="text-xs text-success mt-2">{addSuccess}</p>}
                 </div>
-                {/* Search */}
+
+                {/* 搜索框保持不变 */}
                 <div className="relative mb-5">
                     <Search
                         size={15}
@@ -201,11 +137,10 @@ export default function NicknameManagerPage() {
                         type="text"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
-                        onKeyDown={handleSearchKey}
-                        placeholder="Search by name or platform… (Enter to search)"
+                        placeholder="搜索所有包含关键词…"
                         className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                     />
-                    {committed && (
+                    {query && (
                         <button
                             onClick={() => {
                                 setQuery("");
@@ -218,64 +153,58 @@ export default function NicknameManagerPage() {
                     )}
                 </div>
 
-                {committed && (
+                {query && (
                     <p className="text-xs text-muted-foreground mb-3">
-                        {filtered.length} result
-                        {filtered.length !== 1 ? "s" : ""} for "
-                        <span className="text-foreground">{committed}</span>
-                        "
+                        {filteredIndices.length} 结果关于: "
+                        <span className="text-foreground">{query}</span>"
                     </p>
                 )}
+
                 <ScrollArea className="flex-1 min-h-0 rounded-b-2xl">
-                    {/* Nickname cards */}
                     <div className="grid gap-3">
-                        {filtered.length === 0 ? (
+                        {filteredIndices.length === 0 ? (
                             <div className="py-12 text-center text-muted-foreground text-sm">
-                                No nicknames match your search.
+                                没有找到匹配的记忆点。
                             </div>
                         ) : (
-                            filtered.map((n) => {
-                                const display = revealed
-                                    ? NICKNAME_PLAINTEXT[n.id]
-                                    : n.cipher;
+                            filteredIndices.map((idx) => {
+                                const fullPoint = fullPoints[idx];
+                                const displayPoint = displayPoints[idx];
                                 return (
                                     <div
-                                        key={n.id}
-                                        className={`flex items-center gap-4 p-4 rounded-xl border ${n.accentBorder} ${n.accentBg} transition-colors`}
+                                        key={idx}
+                                        className="flex items-center gap-4 p-4 rounded-xl border border-primary/30 bg-primary/5 transition-colors"
                                     >
-                                        {/* Color avatar */}
-                                        <div
-                                            className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${n.accentTag}`}
-                                        >
-                                            <span
-                                                className={`text-base font-bold ${n.accentTagText}`}
-                                            >
-                                                {n.label[0]}
+                                        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-primary/10">
+                                            <span className="text-base font-bold text-primary">
+                                                {idx + 1}
                                             </span>
                                         </div>
-
-                                        {/* Info */}
                                         <div className="flex-1 min-w-0">
+                                            <div className="font-semibold">Nickname {idx + 1}</div>
+                                            <div className="text-xs text-muted-foreground mb-1">Local</div>
                                             <div
-                                                className={`font-semibold ${n.accentText}`}
+                                                className={`text-sm font-mono tracking-wide transition-all ${revealed
+                                                    ? "text-foreground"
+                                                    : "text-muted-foreground/60 select-none"
+                                                    }`}
                                             >
-                                                {n.label}
-                                            </div>
-                                            <div className="text-xs text-muted-foreground mb-1">
-                                                {n.platform}
-                                            </div>
-                                            <div
-                                                className={`text-sm font-mono tracking-wide transition-all ${revealed ? "text-foreground" : "text-muted-foreground/60 select-none"}`}
-                                            >
-                                                {display}
+                                                {displayPoint}
                                             </div>
                                         </div>
-
-                                        {/* Platform tag */}
                                         <span
-                                            className={`hidden sm:inline-flex shrink-0 text-xs px-2.5 py-1 rounded-full font-medium ${n.accentTag} ${n.accentTagText}`}
+                                            className={`
+                        ${revealed ? "" : "invisible"}
+                        sm:inline-flex shrink-0 items-center text-xs px-2.5 py-1 rounded-full font-medium
+                        bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700
+                        cursor-pointer transition-colors duration-200
+                      `}
+                                            onClick={() => {
+                                                setPointToDelete(fullPoint);
+                                                setDeleteDialogOpen(true);
+                                            }}
                                         >
-                                            {n.platform}
+                                            删除
                                         </span>
                                     </div>
                                 );
@@ -283,25 +212,35 @@ export default function NicknameManagerPage() {
                         )}
                     </div>
                 </ScrollArea>
-
             </div>
 
-            {/* Floating Add button */}
-            <button className="fixed bottom-8 right-8 flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-foreground shadow-lg hover:opacity-90 active:scale-95 transition-all">
-                <Plus size={16} />
-                Add Nickname
-            </button>
-
-            {/* Decrypt dialog */}
+            {/* 解密对话框（原有） */}
             {showDecryptDialog && (
                 <NicknameDecryptDialog
-                    onSuccess={() => {
+                    onSuccess={(points) => {
+                        setFullPoints(points);
                         setRevealed(true);
                         setShowDecryptDialog(false);
                     }}
                     onClose={() => setShowDecryptDialog(false)}
                 />
             )}
+
+            {/* 删除确认对话框 */}
+            <DeleteConfirmDialog
+                open={deleteDialogOpen}
+                deleteKey={pointToDelete}
+                onClose={() => {
+                    setDeleteDialogOpen(false);
+                    setPointToDelete(null);
+                }}
+                deleteFunction={del_memory_point}
+                onSuccess={() => {
+                    setFullPoints((current_points) => {
+                        return current_points.filter((p) => p !== pointToDelete)
+                    });
+                }}
+            />
         </div>
     );
 }

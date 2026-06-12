@@ -24,12 +24,15 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             list_passwds,
             get_passwd,
-            list_nicknames,
+            get_memory_points,
+            plaintext_points,
             add_nickname,
             search_passwds,
             get_config,
             add_passwd,
-            update_passwd
+            update_passwd,
+            del_memory_point,
+            del_passwd_by_uid
         ])
         .run(generate_context!())
         .expect("error while running tauri application");

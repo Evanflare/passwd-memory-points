@@ -4,19 +4,22 @@ export default function PasswdListTable({
     filtered,
     setDecryptTarget,
     onRowClick,
+    onDelete,
 }: {
     filtered: PasswdSummary[];
     setDecryptTarget: (e: PasswdSummary) => void;
     onRowClick?: (e: PasswdSummary) => void;
+    onDelete: (uid: string) => void;
 }) {
     return (
         <div className="rounded-xl border border-border overflow-hidden">
             <table className="w-full text-sm">
                 <thead>
                     <tr className="bg-muted/50 border-b border-border">
-                        <th className="text-left px-4 py-3 text-muted-foreground">Name</th>
-                        <th className="text-left px-4 py-3 text-muted-foreground">Description</th>
+                        <th className="text-left px-4 py-3 text-muted-foreground">名称</th>
+                        <th className="text-left px-4 py-3 text-muted-foreground">描述</th>
                         {/* <th className="text-left px-4 py-3 text-muted-foreground">Last Updated</th> */}
+                        <th className="px-4 py-3" />
                         <th className="px-4 py-3" />
                     </tr>
                 </thead>
@@ -24,7 +27,7 @@ export default function PasswdListTable({
                     {filtered.length === 0 ? (
                         <tr>
                             <td colSpan={4} className="px-4 py-10 text-center text-muted-foreground">
-                                No entries match your search.
+                                没有搜索到任何结果
                             </td>
                         </tr>
                     ) : (
@@ -43,9 +46,23 @@ export default function PasswdListTable({
                                             ev.stopPropagation();
                                             setDecryptTarget(e);
                                         }}
-                                        className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md bg-secondary text-secondary-foreground hover:bg-accent transition-colors ml-auto"
+                                        className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-md bg-secondary text-secondary-foreground hover:bg-accent transition-colors ml-auto"
                                     >
-                                        Decrypt
+                                        解密
+                                    </button>
+
+                                </td>
+                                <td className="px-4 py-3 text-right">
+                                    <button
+                                        onClick={(ev) => {
+                                            ev.stopPropagation();
+                                            onDelete?.(e.uid)
+                                        }}
+                                        className="                        sm:inline-flex shrink-0 items-center text-xs px-2.5 py-1 rounded-full font-medium
+                        bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700
+                        cursor-pointer transition-colors duration-200 flex items-center gap-1 text-xs px-3 py-1.5 rounded-md  hover:bg-accent  ml-auto"
+                                    >
+                                        删除
                                     </button>
                                 </td>
                             </tr>
