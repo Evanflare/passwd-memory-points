@@ -45,7 +45,7 @@ function ActivePage({ page, isAndroid }: { page: Page, isAndroid: boolean }) {
   if (page === "passwd-list") return <PasswordListPage isAndroid={isAndroid} />;
   if (page === "nickname-manager")
     return <NicknameManagerPage isAndroid={isAndroid} />;
-  return <ConfigPage isAndroid={isAndroid} />;
+  return <ConfigPage />;
 }
 
 export default function App() {
