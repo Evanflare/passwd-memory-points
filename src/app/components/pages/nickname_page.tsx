@@ -4,7 +4,7 @@ import NicknameDecryptDialog from "../dialog/nickname_decrypt";
 import { ScrollArea } from "../ui/scroll-area";
 import { addNickname, getMemoryPoints } from "../../tauri_core/command_frontend"
 
-export default function NicknameManagerPage() {
+export default function NicknameManagerPage({ isAndroid }: { isAndroid: boolean }) {
     const [newNickname, setNewNickname] = useState("");
     const [newKey, setNewKey] = useState("");
     const [adding, setAdding] = useState(false);
@@ -29,8 +29,8 @@ export default function NicknameManagerPage() {
         setFirstLoad(false);
     }
     return (
-        <div className="relative h-screen  flex justify-center">
-            <div className="p-8 w-4/5 max-w-4xl  flex flex-col h-full">
+        <div className="relative h-full  flex justify-center">
+            <div className={`${isAndroid ? 'p-6 w-full' : 'p-8 w-4/5 max-w-4xl'}   flex flex-col h-full`}>
                 <div className="flex items-start justify-between gap-4 mb-6">
                     <div>
                         <h1 className="mb-1">记忆点集</h1>
@@ -43,7 +43,6 @@ export default function NicknameManagerPage() {
                         onClick={() => {
                             if (!revealed) setShowDecryptDialog(true);
                             else {
-
                                 flush();
                             }
                         }}
@@ -58,7 +57,7 @@ export default function NicknameManagerPage() {
                 </div>
                 {/* Add Nickname — simple form */}
                 <div className="mb-6">
-                    <div className="flex gap-2 items-center">
+                    <div className={`flex gap-2 items-center flex-wrap`}>
                         <input
                             type="text"
                             value={newNickname}

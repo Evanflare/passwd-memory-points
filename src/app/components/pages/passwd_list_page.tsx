@@ -9,7 +9,7 @@ import AddPasswordDialog from "../dialog/add_passwd_dialog";
 import { ScrollArea } from "../ui/scroll-area";
 import UpdatePasswdDialog from "../dialog/update_passwd_dialog";
 
-export default function PasswordListPage() {
+export default function PasswordListPage({ isAndroid }: { isAndroid: boolean }) {
     console.log("组件渲染开始"); // 1. 确认组件是否渲染
 
     const [decryptTarget, setDecryptTarget] = useState<PasswdSummary | null>(null);
@@ -53,8 +53,8 @@ export default function PasswordListPage() {
     }, [passwdState.flushList]);
 
     return (
-        <div className="relative flex-1 flex justify-center min-h-0">
-            <div className="p-8 w-4/5 max-w-4xl flex flex-col min-h-0">
+        <div className="relative flex-1 flex justify-center h-full">
+            <div className={`${isAndroid ? 'p-6 w-full' : 'p-8 w-4/5 max-w-4xl'} flex flex-col h-full`} >
                 <h1 className="mb-1">密码记忆点管理</h1>
                 <p className="text-muted-foreground mb-6">
                     管理你的密码记忆，添加一个密码记忆？
@@ -112,36 +112,40 @@ export default function PasswordListPage() {
             {/* Floating Add button */}
             <button
                 onClick={() => changeAddFlag(true)}
-                className="fixed bottom-8 right-8 flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-foreground shadow-lg hover:opacity-90 active:scale-95 transition-all">
+                className={`fixed ${isAndroid ? 'bottom-28' : 'bottom-8'} right-8 flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-foreground shadow-lg hover:opacity-90 active:scale-95 transition-all`}>
                 <Plus size={16} />
 
             </button>
 
             {/* Decrypt dialog */}
-            {decryptTarget && (
-                <DecryptDialog
-                    entry={decryptTarget}
-                    onClose={() => setDecryptTarget(null)}
-                    dispacher={dispatch}
-                />
-            )}
-            {updateTarget && (
-                <UpdatePasswdDialog
-                    passwd={updateTarget}
-                    hidden={false}
-                    onClose={() => setUpdateTarget(null)}
-                    onUpdated={() => {
-                        setUpdateTarget(null);
-                        dispatch({ type: "changed" }); // 刷新列表或使用你已有的 action
-                    }}
-                />
-            )}
+            {
+                decryptTarget && (
+                    <DecryptDialog
+                        entry={decryptTarget}
+                        onClose={() => setDecryptTarget(null)}
+                        dispacher={dispatch}
+                    />
+                )
+            }
+            {
+                updateTarget && (
+                    <UpdatePasswdDialog
+                        passwd={updateTarget}
+                        hidden={false}
+                        onClose={() => setUpdateTarget(null)}
+                        onUpdated={() => {
+                            setUpdateTarget(null);
+                            dispatch({ type: "changed" }); // 刷新列表或使用你已有的 action
+                        }}
+                    />
+                )
+            }
             <AddPasswordDialog
                 onClosed={() => changeAddFlag(false)}
                 onAdded={() => dispatch({ type: "added" })}
                 hidden={!addPasswdFlag}
             />
 
-        </div>
+        </div >
     );
 }

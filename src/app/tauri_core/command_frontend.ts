@@ -93,3 +93,8 @@ export async function plaintextPoints(user_key: string): Promise<string[]> {
 export async function getMemoryPoints(): Promise<string[]> {
     return await invoke("get_memory_points")
 }
+
+export async function updateConfig(): Promise<string> {
+    //todo
+    return ""
+}

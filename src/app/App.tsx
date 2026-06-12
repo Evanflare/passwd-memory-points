@@ -41,11 +41,11 @@ const NAV_ITEMS: {
 import PasswordListPage from "./components/pages/passwd_list_page";
 import ConfigPage from "./components/pages/config_page";
 import NicknameManagerPage from "./components/pages/nickname_page";
-function ActivePage({ page }: { page: Page }) {
-  if (page === "passwd-list") return <PasswordListPage />;
+function ActivePage({ page, isAndroid }: { page: Page, isAndroid: boolean }) {
+  if (page === "passwd-list") return <PasswordListPage isAndroid={isAndroid} />;
   if (page === "nickname-manager")
-    return <NicknameManagerPage />;
-  return <ConfigPage />;
+    return <NicknameManagerPage isAndroid={isAndroid} />;
+  return <ConfigPage isAndroid={isAndroid} />;
 }
 
 export default function App() {
@@ -84,14 +84,14 @@ export default function App() {
     <div className="size-full flex flex-col min-h-screen bg-background text-foreground ">
       {/* Header (Android 时显示暗黑切换和 Log) */}
       {isAndroid && (
-        <header className="w-full border-b border-sidebar-border bg-sidebar px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <header className="w-full border-b border-sidebar-border bg-sidebar flex-one px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3 py-3">
             <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shrink-0">
               <ShieldCheck size={20} className="text-primary-foreground" />
             </div>
             <div>
-              <div className="text-xs text-sidebar-foreground/50 leading-none mb-0.5">Vault</div>
-              <div className="font-semibold text-sidebar-foreground leading-none">KeyVault</div>
+              <div className="text-xs text-sidebar-foreground/50 leading-none mb-0.5">密码</div>
+              <div className="font-semibold text-sidebar-foreground leading-none">记忆管理</div>
             </div>
           </div>
 
@@ -109,7 +109,7 @@ export default function App() {
         </header>
       )}
 
-      <div className="flex-1 flex">
+      <div className="flex-1 flex overflow-y-auto">
         {/* Sidebar (非 Android 显示) */}
         {!isAndroid && (
           <aside
@@ -231,14 +231,14 @@ export default function App() {
         )}
 
         {/* Main content — key forces remount on page change, resetting all local state */}
-        <main className={`flex-1 overflow-auto bg-background ${isAndroid ? 'pb-16' : ''}`}>
-          <ActivePage key={activePage} page={activePage} />
+        <main className={`flex-1 overflow-auto bg-background `}>
+          <ActivePage isAndroid={isAndroid} key={activePage} page={activePage} />
         </main>
       </div>
 
       {/* Footer (Android 时将导航放在底部) */}
       {isAndroid && (
-        <footer className="w-full border-t border-sidebar-border bg-sidebar px-2 py-2 fixed bottom-0 left-0 right-0">
+        <footer className="w-full border-t border-sidebar-border bg-sidebar px-2 py-2 fixed flex-one bottom-0 left-0 right-0">
           <nav className="max-w-xl mx-auto flex items-center justify-between">
             {NAV_ITEMS.map((item) => {
               const active = activePage === item.id;
