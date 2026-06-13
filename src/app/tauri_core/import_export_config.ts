@@ -54,9 +54,8 @@ const handleExport = async () => {
         });
         if (!savePath) return;
 
-        // 获取当前应用数据（例如从 store 中）
-        const currentData = { /* 你的数据 */ };
-        await invoke('export_to_file', { path: savePath, data: currentData });
+        // 调用tauri命令
+        await invoke('export_to_file', { path: savePath });
         console.log("导出成功");
     } catch (error: any) {
         console.error("导出失败", error);

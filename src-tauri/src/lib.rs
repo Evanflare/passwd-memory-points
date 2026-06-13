@@ -27,6 +27,7 @@ pub fn run() {
             get_passwd,
             get_memory_points,
             plaintext_points,
+            export_to_file,
             add_nickname,
             search_passwds,
             get_config,
