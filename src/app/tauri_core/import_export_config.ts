@@ -22,6 +22,28 @@ const handleImport = async () => {
     }
 };
 
+// 切换按钮的处理函数
+const handleCheckOut = async () => {
+    try {
+        const selected = await open({
+            multiple: false,
+            directory: false,
+            title: "切换到文件",
+            filters: [{ name: "toml", extensions: ["toml"] }]
+        });
+        if (!selected) return;
+
+        // 调用 Rust 命令，传入文件路径
+        const importedData = await invoke('checkout_file', { path: selected });
+        console.log("切换的数据", importedData);
+        // 更新你的前端状态...
+    } catch (error: any) {
+        console.error("切换失败", error);
+        throw Error("切换失败:" + error?.message)
+    }
+};
+
+
 // 导出按钮的处理函数
 const handleExport = async () => {
     try {
@@ -42,4 +64,4 @@ const handleExport = async () => {
     }
 };
 
-export { handleExport, handleImport }
+export { handleExport, handleImport, handleCheckOut }

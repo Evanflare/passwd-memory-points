@@ -8,6 +8,7 @@ import {
     DialogTrigger,
 } from "../ui/dialog"; // 请确保路径正确
 import { Button } from "../ui/button"; // 可选，用于复制按钮样式
+import { handleCheckOut, handleExport, handleImport } from "../../tauri_core/import_export_config";
 
 export default function ConfigPage() {
     const [passwdFilePath, setPasswdFilePath] = useState("");
@@ -75,7 +76,17 @@ export default function ConfigPage() {
                         </Dialog>
                     ))}
                 </div>
-
+                <div className="mt-6 flex rounded-xl border border-border bg-card">
+                    < button className="w-full min-h-10 flex-1 hover:bg-accent/50 border-r-2"
+                        onClick={handleImport}
+                    >导入</button>
+                    < button className="w-full min-h-10 flex-1 hover:bg-accent/50 border-r-2"
+                        onClick={handleExport}
+                    >导出</button>
+                    < button className="w-full min-h-10 flex-1 hover:bg-accent/50"
+                        onClick={handleCheckOut}
+                    >切换</button>
+                </div>
                 <div className="mt-6 p-4 rounded-xl border border-border bg-card">
                     <div className="text-sm font-medium mb-1">软件版本</div>
                     <div className="text-sm text-muted-foreground">
