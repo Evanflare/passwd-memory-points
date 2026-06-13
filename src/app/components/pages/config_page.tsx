@@ -10,12 +10,18 @@ import {
 import { Button } from "../ui/button"; // 可选，用于复制按钮样式
 import { handleCheckOut, handleExport, handleChooseImportFile } from "../../tauri_core/import_export_config";
 import { message } from "@tauri-apps/plugin-dialog";
+import { invoke } from "@tauri-apps/api/core";
 
 export default function ConfigPage() {
     const [passwdFilePath, setPasswdFilePath] = useState("");
     const [configPath, setConfigPath] = useState("");
     const [defaultChar, setDefaultChar] = useState("");
     //const [selectedItem, setSelectedItem] = useState<{ label: string; value: string } | null>(null);
+    const [importDialogOpen, setImportDialogOpen] = useState(false);
+    const [selectedFilePath, setSelectedFilePath] = useState<string | null>(null);
+    const [localSecret, setLocalSecret] = useState("");
+    const [importSecret, setImportSecret] = useState("");
+    const [isImporting, setIsImporting] = useState(false);
 
     useEffect(() => {
         async function loadConfig() {
@@ -42,6 +48,43 @@ export default function ConfigPage() {
         } catch (err) {
             console.error("复制失败", err);
             alert("复制失败，请手动复制");
+        }
+    };
+
+
+    // 选择文件的处理函数
+    const handleSelectFile = async () => {
+        try {
+            const path = await handleChooseImportFile();
+            if (path) {
+                setSelectedFilePath(path);
+            }
+        } catch (error) {
+            await message(`选择文件失败：${(error as Error).message}`, { title: "错误", kind: "error" });
+        }
+    };
+
+    // 执行导入
+    const handleDoImport = async () => {
+        if (!selectedFilePath || !localSecret.trim() || !importSecret.trim()) return;
+        setIsImporting(true);
+        try {
+            await invoke("import_from_file", {
+                path: selectedFilePath,
+                local_secret: localSecret,
+                import_secret: importSecret,
+            });
+            //await message("导入成功！", { title: "成功", kind: "info" });
+            // 关闭对话框并重置状态
+            setImportDialogOpen(false);
+            setSelectedFilePath(null);
+            setLocalSecret("");
+            setImportSecret("");
+            // 可选：刷新页面数据
+        } catch (error) {
+            await message(`导入失败：${error}`, { title: "错误", kind: "error" });
+        } finally {
+            setIsImporting(false);
         }
     };
 
@@ -81,7 +124,7 @@ export default function ConfigPage() {
                     < button className="w-full min-h-10 flex-1 hover:bg-accent/50 border-r-2"
                         onClick={async () => {
                             try {
-                                handleChooseImportFile();
+                                setImportDialogOpen(true)
                             } catch (e) {
                                 // 弹出错误对话框
                                 await message(`导入失败：${(e as Error).message}`, {
@@ -133,6 +176,65 @@ export default function ConfigPage() {
                 </div>
                 <div className="flex-1"></div>
             </div>
+            <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>导入数据</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <div>
+                            <div className="text-sm font-medium mb-1">文件路径</div>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={selectedFilePath || ""}
+                                    readOnly
+                                    placeholder="未选择文件"
+                                    className="flex-1 px-3 py-2 rounded-md border border-border bg-muted text-sm"
+                                />
+                                <Button type="button" variant="outline" onClick={handleSelectFile}>
+                                    选择文件
+                                </Button>
+                            </div>
+                        </div>
+                        <div>
+                            <div className="text-sm font-medium mb-1">当前加密密钥</div>
+                            <input
+                                type="password"
+                                value={localSecret}
+                                onChange={(e) => setLocalSecret(e.target.value)}
+                                disabled={!selectedFilePath}
+                                className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm disabled:opacity-50"
+                            />
+                        </div>
+                        <div>
+                            <div className="text-sm font-medium mb-1">待导入文件加密密钥</div>
+                            <input
+                                type="password"
+                                value={importSecret}
+                                onChange={(e) => setImportSecret(e.target.value)}
+                                disabled={!selectedFilePath}
+                                className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm disabled:opacity-50"
+                            />
+                        </div>
+                    </div>
+                    <div className="flex justify-end gap-2 mt-4">
+                        <Button variant="outline" onClick={() => {
+                            setImportDialogOpen(false);
+                            setLocalSecret("")
+                            setImportSecret("")
+                        }}>
+                            取消
+                        </Button>
+                        <Button
+                            onClick={handleDoImport}
+                            disabled={!selectedFilePath || !localSecret.trim() || !importSecret.trim() || isImporting}
+                        >
+                            {isImporting ? "导入中..." : "导入"}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div >
     );
 }

@@ -2,7 +2,7 @@ import { open, save } from '@tauri-apps/plugin-dialog';
 import { invoke } from '@tauri-apps/api/core';
 
 // 导入按钮的处理函数
-const handleChooseImportFile = async (): Promise<String | null> => {
+const handleChooseImportFile = async (): Promise<string | null> => {
     try {
         const selected = await open({
             multiple: false,
