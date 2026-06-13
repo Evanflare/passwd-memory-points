@@ -90,7 +90,7 @@ export default function ConfigPage() {
                 <div className="mt-6 p-4 rounded-xl border border-border bg-card">
                     <div className="text-sm font-medium mb-1">软件版本</div>
                     <div className="text-sm text-muted-foreground">
-                        passwd-nickname v1.0.0 — 构建于 2026.06.08
+                        {import.meta.env.VITE_APP_NAME} v{import.meta.env.VITE_APP_VERSION} — 构建于 {import.meta.env.VITE_BUILD_TIME}
                     </div>
                     <div className="mt-4 pt-2">
                         <div className="font-medium">作者</div>
