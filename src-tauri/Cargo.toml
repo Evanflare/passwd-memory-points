@@ -25,3 +25,5 @@ serde_json = "1"
 nickname-passwd = { package = "passwd-memory-point", path = 'D:\Programming\Rust\workspace\rust_study\passwd-nickname' }
 thiserror = "2"
 dirs = "6.0.0"
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
