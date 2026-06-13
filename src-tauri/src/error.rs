@@ -10,6 +10,8 @@ pub enum Error {
     SecretKeyError(String),
     #[error("file operation error: {0}")]
     FileOperationError(String),
+    #[error("some element fail: {0}")]
+    SomeElementFail(String),
 }
 
 #[derive(serde::Serialize)]
@@ -21,6 +23,7 @@ pub enum ErrorKind {
     NotFoundItem(String),
     SecretKeyError(String),
     FileOperationError(String),
+    SomeElementFail(String),
 }
 
 impl serde::Serialize for Error {
@@ -35,6 +38,7 @@ impl serde::Serialize for Error {
             Self::NotFoundItem(_) => ErrorKind::NotFoundItem(error_message),
             Self::SecretKeyError(_) => ErrorKind::SecretKeyError(error_message),
             Self::FileOperationError(_) => ErrorKind::FileOperationError(error_message),
+            Self::SomeElementFail(_) => ErrorKind::SomeElementFail(error_message),
         };
         error_kind.serialize(serializer)
     }

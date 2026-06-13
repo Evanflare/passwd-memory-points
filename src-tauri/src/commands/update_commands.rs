@@ -26,7 +26,27 @@ pub async fn update_passwd(
     };
 
     match passwd.update(name, descript, plaintext, user_key) {
-        Ok(_) => Ok(()),
+        Ok(_) => {
+            let _ = passwd_vector.store();
+            Ok(())
+        }
         Err(_) => Err(Error::SecretKeyError("密钥不正确".to_string())),
+    }
+}
+
+/// 更新加密密钥
+#[tauri::command(rename_all = "snake_case")]
+pub async fn change_secret_key(
+    old_secret: &str,
+    new_secret: &str,
+    state: State<'_, Mutex<PasswdVector>>,
+) -> Result<(), Error> {
+    let mut passwd_vector = state.lock().unwrap();
+    match passwd_vector.change_encypt_secret(old_secret, new_secret) {
+        Ok(()) => {
+            let _ = passwd_vector.store();
+            Ok(())
+        }
+        Err(e) => Err(Error::SomeElementFail(e.as_str().to_string())),
     }
 }

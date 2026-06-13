@@ -11,6 +11,7 @@ import { Button } from "../ui/button"; // 可选，用于复制按钮样式
 import { handleCheckOut, handleExport, handleChooseImportFile } from "../../tauri_core/import_export_config";
 import { message } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
+import ChangeSecretDialog from "../dialog/change_secret.dialog";
 
 export default function ConfigPage() {
     const [passwdFilePath, setPasswdFilePath] = useState("");
@@ -22,7 +23,7 @@ export default function ConfigPage() {
     const [localSecret, setLocalSecret] = useState("");
     const [importSecret, setImportSecret] = useState("");
     const [isImporting, setIsImporting] = useState(false);
-
+    const [changeKeyDialogOpen, setChangeKeyDialogOpen] = useState(false);
     useEffect(() => {
         async function loadConfig() {
             const config = await getConfig();
@@ -82,7 +83,7 @@ export default function ConfigPage() {
             setImportSecret("");
             // 可选：刷新页面数据
         } catch (error) {
-            await message(`导入失败：${error}`, { title: "错误", kind: "error" });
+            await message(`导入失败：${(error as Error)?.message}`, { title: "错误", kind: "error" });
         } finally {
             setIsImporting(false);
         }
@@ -164,6 +165,14 @@ export default function ConfigPage() {
                         }}
                     >切换</button>
                 </div>
+                <div className="mt-2 flex rounded-xl border border-border bg-card">
+                    <button
+                        className="w-full min-h-10 flex-1 hover:bg-accent/50"
+                        onClick={() => setChangeKeyDialogOpen(true)}
+                    >
+                        修改密钥
+                    </button>
+                </div>
                 <div className="mt-6 p-4 rounded-xl border border-border bg-card">
                     <div className="text-sm font-medium mb-1">软件版本</div>
                     <div className="text-sm text-muted-foreground">
@@ -235,6 +244,7 @@ export default function ConfigPage() {
                     </div>
                 </DialogContent>
             </Dialog>
+            <ChangeSecretDialog changeKeyDialogOpen={changeKeyDialogOpen} setChangeKeyDialogOpen={setChangeKeyDialogOpen} ></ChangeSecretDialog>
         </div >
     );
 }

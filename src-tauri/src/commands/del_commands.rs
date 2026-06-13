@@ -16,6 +16,7 @@ pub fn del_memory_point(
     // 得到passwdvector
     let mut passwd_vector = state.lock().unwrap();
     if passwd_vector.nickname.del_nickname(point_str, secret_key) {
+        let _ = passwd_vector.store();
         return Ok(());
     } else {
         return Err(Error::NotFoundItem(
@@ -39,6 +40,7 @@ pub fn del_passwd_by_uid(
         Err(_) => return Err(Error::SecretKeyError("密码不正确".to_string())),
     }
     if passwd_vector.remove_passwd_by_unique_id(uid) {
+        let _ = passwd_vector.store();
         return Ok(());
     } else {
         return Err(Error::NotFoundItem("无法找到对象".to_string()));

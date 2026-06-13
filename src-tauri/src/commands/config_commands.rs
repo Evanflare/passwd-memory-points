@@ -37,7 +37,10 @@ pub fn import_from_file(
     };
 
     match passwd_vector.includes_passwd_vector(import_vector, local_secret, import_secret) {
-        Ok(_) => Ok(()),
+        Ok(_) => {
+            let _ = passwd_vector.store();
+            Ok(())
+        }
         Err(MyError::FilePathIsWrong(s)) => Err(Error::FileOperationError(s)),
         Err(MyError::SecretKeyDifferent(s)) => {
             Err(Error::SecretKeyError(format!("加密密钥不一致:{}", s)))

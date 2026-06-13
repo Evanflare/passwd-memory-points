@@ -20,6 +20,7 @@ pub fn add_nickname(
     passwd_vector
         .store()
         .map_err(|e| Error::SecretKeyError(format!("保存失败: {}", e)))?;
+    let _ = passwd_vector.store();
     Ok(true)
 }
 
@@ -53,5 +54,6 @@ pub fn add_passwd(
     passwd_vector
         .store()
         .map_err(|e| Error::FileOperationError(format!("保存失败: {}", e)))?;
+    let _ = passwd_vector.store();
     Ok(true)
 }

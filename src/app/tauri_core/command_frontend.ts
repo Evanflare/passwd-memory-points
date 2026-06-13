@@ -110,3 +110,7 @@ export async function del_memory_point(point_str: string, secret_key: string) {
 export async function del_passwd_by_uid(uid: string, secret_key: string) {
     return await invoke("del_passwd_by_uid", { uid, secret_key });
 }
+
+export async function changeSecret(currentKey: string, newKey: string) {
+    return await invoke("change_secret_key", { old_secret: currentKey, new_secret: newKey });
+}
