@@ -12,15 +12,16 @@ export default function ConfigPage() {
         setDefaultChar(config.default_fill_char);
     };
     updateConfig();
+    const isAndroid = typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
 
     return (
-        <div className="relative  h-screen w-full flex justify-center p-8">
-            <div className="p-2em w-4/5 max-w-4xl flex flex-col h-full">
+        <div className="relative  h-full w-full flex justify-center">
+            <div className={`${isAndroid ? 'p-6 w-full' : 'p-8 w-4/5 max-w-4xl'} flex flex-col h-full`}>
                 <h1 className="mb-1">配置信息</h1>
                 <p className="text-muted-foreground mb-6">
                     关于软件的行为与其他信息。
                 </p>
-                <div className="flex-1 rounded-xl border border-border divide-y divide-border min-w-0">
+                <div className="rounded-xl border border-border divide-y divide-border min-w-0">
                     {[
                         {
                             label: "密码文件存储路径",
@@ -37,7 +38,7 @@ export default function ConfigPage() {
                     ].map((item) => (
                         <div
                             key={item.label}
-                            className="flex flex-col justify-between px-5 py-4 bg-card min-w-0"
+                            className="flex flex-col justify-between p-4 bg-card min-w-0"
                         >
                             <div className="font-medium">{item.label}</div>
                             <div className="text-sm text-muted-foreground truncate ">
@@ -66,6 +67,7 @@ export default function ConfigPage() {
                         </div>
                     </div>
                 </div>
+                <div className="flex-1"></div>
             </div>
         </div>
     );

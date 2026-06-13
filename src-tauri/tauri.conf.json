@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "密码记忆点",
+  "productName": "passwd-memory-point",
   "version": "0.1.2",
   "identifier": "com.evanflare.passwd-memory-point",
   "build": {
