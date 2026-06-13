@@ -2,7 +2,7 @@ import { open, save } from '@tauri-apps/plugin-dialog';
 import { invoke } from '@tauri-apps/api/core';
 
 // 导入按钮的处理函数
-const handleImport = async () => {
+const handleChooseImportFile = async (): Promise<String | null> => {
     try {
         const selected = await open({
             multiple: false,
@@ -10,12 +10,12 @@ const handleImport = async () => {
             title: "导入数据",
             filters: [{ name: "toml", extensions: ["toml"] }]
         });
-        if (!selected) return;
+        if (!selected) return null;
+        return selected;
 
-        // 调用 Rust 命令，传入文件路径
-        const importedData = await invoke('import_from_file', { path: selected });
-        console.log("导入的数据", importedData);
-        // 更新你的前端状态...
+        // // 调用 Rust 命令，传入文件路径
+        // const importedData = await invoke('import_from_file', { path: selected, local_secret, import_secret });
+        // console.log("导入的数据", importedData);
     } catch (error: any) {
         console.error("导入失败", error);
         throw Error("导入失败:" + error?.message)
@@ -63,4 +63,4 @@ const handleExport = async () => {
     }
 };
 
-export { handleExport, handleImport, handleCheckOut }
+export { handleExport, handleChooseImportFile, handleCheckOut }

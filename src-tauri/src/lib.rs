@@ -32,6 +32,7 @@ pub fn run() {
             search_passwds,
             get_config,
             add_passwd,
+            import_from_file,
             update_passwd,
             del_memory_point,
             del_passwd_by_uid

@@ -8,7 +8,8 @@ import {
     DialogTrigger,
 } from "../ui/dialog"; // 请确保路径正确
 import { Button } from "../ui/button"; // 可选，用于复制按钮样式
-import { handleCheckOut, handleExport, handleImport } from "../../tauri_core/import_export_config";
+import { handleCheckOut, handleExport, handleChooseImportFile } from "../../tauri_core/import_export_config";
+import { message } from "@tauri-apps/plugin-dialog";
 
 export default function ConfigPage() {
     const [passwdFilePath, setPasswdFilePath] = useState("");
@@ -78,13 +79,46 @@ export default function ConfigPage() {
                 </div>
                 <div className="mt-6 flex rounded-xl border border-border bg-card">
                     < button className="w-full min-h-10 flex-1 hover:bg-accent/50 border-r-2"
-                        onClick={handleImport}
+                        onClick={async () => {
+                            try {
+                                handleChooseImportFile();
+                            } catch (e) {
+                                // 弹出错误对话框
+                                await message(`导入失败：${(e as Error).message}`, {
+                                    title: "错误",
+                                    kind: "error",
+                                });
+                            }
+
+                        }}
                     >导入</button>
                     < button className="w-full min-h-10 flex-1 hover:bg-accent/50 border-r-2"
-                        onClick={handleExport}
+                        onClick={async () => {
+                            try {
+                                handleExport();
+                            } catch (e) {
+                                // 弹出错误对话框
+                                await message(`导出失败：${(e as Error).message}`, {
+                                    title: "错误",
+                                    kind: "error",
+                                });
+                            }
+
+                        }}
                     >导出</button>
                     < button className="w-full min-h-10 flex-1 hover:bg-accent/50"
-                        onClick={handleCheckOut}
+                        onClick={async () => {
+                            try {
+                                handleCheckOut();
+                            } catch (e) {
+                                // 弹出错误对话框
+                                await message(`切换失败：${(e as Error).message}`, {
+                                    title: "错误",
+                                    kind: "error",
+                                });
+                            }
+
+                        }}
                     >切换</button>
                 </div>
                 <div className="mt-6 p-4 rounded-xl border border-border bg-card">
@@ -99,6 +133,6 @@ export default function ConfigPage() {
                 </div>
                 <div className="flex-1"></div>
             </div>
-        </div>
+        </div >
     );
 }

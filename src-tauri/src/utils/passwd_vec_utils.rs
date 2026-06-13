@@ -8,7 +8,7 @@ pub fn check_secret_right_or_error(
 ) -> Result<String, Error> {
     if passwd_vec.nickname.get_len() != 0 {
         // 检验密钥
-        if passwd_vec.nickname.check_crype_key(user_key) {
+        if passwd_vec.nickname.check_decryption_key(user_key) {
             return Ok(user_key.to_string());
         } else {
             return Err(Error::SecretKeyWrong);
