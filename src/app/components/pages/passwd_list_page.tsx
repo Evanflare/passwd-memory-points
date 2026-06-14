@@ -6,7 +6,6 @@ import DecryptDialog from "../dialog/decrypt_dialog";
 import { actionReducer, init_state } from "./dispacher/passwd_dispacher";
 import { useImmerReducer } from "use-immer";
 import AddPasswordDialog from "../dialog/add_passwd_dialog";
-import { ScrollArea } from "../ui/scroll-area";
 import UpdatePasswdDialog from "../dialog/update_passwd_dialog";
 import { DeleteConfirmDialog } from "../dialog/DeleteConfirmDialog";
 
