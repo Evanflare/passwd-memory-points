@@ -1,4 +1,5 @@
 import { PasswdSummary } from "../tauri_core/command_frontend";
+import { ScrollArea } from "./ui/scroll-area";  // 你封装的 ScrollArea
 
 export default function PasswdListTable({
     filtered,
@@ -12,21 +13,19 @@ export default function PasswdListTable({
     onDelete: (uid: string) => void;
 }) {
     return (
-        <div className="rounded-xl border border-border overflow-hidden">
-            <table className="w-full text-sm">
-                <thead>
-                    <tr className="bg-muted/50 border-b border-border">
+        <ScrollArea className="h-[500px] rounded-xl border border-border">
+            <table className="min-w-full w-full text-sm">
+                <thead className="sticky top-0 bg-muted/50 z-10">
+                    <tr className="border-b border-border">
                         <th className="text-left px-4 py-3 text-muted-foreground">名称</th>
                         <th className="text-left px-4 py-3 text-muted-foreground">描述</th>
-                        {/* <th className="text-left px-4 py-3 text-muted-foreground">Last Updated</th> */}
-                        <th className="px-4 py-3" />
-                        <th className="px-4 py-3" />
+                        <th className="px-4 py-3 w-[1%] whitespace-nowrap">操作</th>
                     </tr>
                 </thead>
                 <tbody>
                     {filtered.length === 0 ? (
                         <tr>
-                            <td colSpan={4} className="px-4 py-10 text-center text-muted-foreground">
+                            <td colSpan={3} className="px-4 py-10 text-center text-muted-foreground">
                                 没有搜索到任何结果
                             </td>
                         </tr>
@@ -37,30 +36,27 @@ export default function PasswdListTable({
                                 onClick={() => onRowClick?.(e)}
                                 className={`border-b border-border last:border-0 hover:bg-accent/40 transition-colors ${i % 2 !== 0 ? "bg-muted/20" : ""} cursor-pointer`}
                             >
-                                <td className="px-4 py-3 font-medium whitespace-nowrap">{e.name}</td>
-                                <td className="px-4 py-3 text-muted-foreground max-w-xs truncate">{e.description}</td>
-                                {/* <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{'TODO: format date nicely'}</td> */}
-                                <td className="px-1 py-3 text-right">
+                                {/* 名称：最多200px后截断 */}
+                                <td className="px-4 py-3 font-medium truncate max-w-[25vw]">{e.name}</td>
+                                {/* 描述：最多300px后截断 */}
+                                <td className="px-4 py-3 text-muted-foreground truncate max-w-[25vw]">{e.description}</td>
+                                {/* 操作列：确保两个按钮始终在同一行，不换行 */}
+                                <td className="px-4 py-3 text-right whitespace-nowrap">
                                     <button
                                         onClick={(ev) => {
                                             ev.stopPropagation();
                                             setDecryptTarget(e);
                                         }}
-                                        className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-md bg-secondary text-secondary-foreground hover:bg-accent transition-colors ml-auto"
+                                        className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-md bg-secondary text-secondary-foreground hover:bg-accent transition-colors mr-2"
                                     >
                                         解密
                                     </button>
-
-                                </td>
-                                <td className="px-1 py-3 text-right">
                                     <button
                                         onClick={(ev) => {
                                             ev.stopPropagation();
-                                            onDelete?.(e.uid)
+                                            onDelete(e.uid);
                                         }}
-                                        className="sm:inline-flex shrink-0 items-center text-xs px-2.5 py-1 rounded-full font-medium
-                        bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700
-                        cursor-pointer transition-colors duration-200 flex items-center gap-1 text-xs px-3 py-1.5 rounded-md  hover:bg-accent  ml-auto"
+                                        className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-md bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition-colors"
                                     >
                                         删除
                                     </button>
@@ -70,6 +66,6 @@ export default function PasswdListTable({
                     )}
                 </tbody>
             </table>
-        </div>
+        </ScrollArea>
     );
 }

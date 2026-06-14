@@ -186,6 +186,7 @@ export default function NicknameManagerPage({ isAndroid }: { isAndroid: boolean 
                                                     ? "text-foreground"
                                                     : "text-muted-foreground/60 select-none"
                                                     }
+                                                    max-w-[calc(60vw-4rem)]
                                                     truncate
                                                     `}
                                             >

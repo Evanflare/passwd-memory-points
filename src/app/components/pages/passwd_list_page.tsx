@@ -120,15 +120,14 @@ export default function PasswordListPage({ isAndroid }: { isAndroid: boolean }) 
                         "
                     </p>
                 )}
-                <ScrollArea className="flex-1 min-h-0 rounded-b-2xl">
-                    {/* Table — 新增 onDelete 属性 */}
-                    <PasswdListTable
-                        filtered={passwdState.filtered_list}
-                        setDecryptTarget={setDecryptTarget}
-                        onRowClick={setUpdateTarget}
-                        onDelete={onDeleteClick}   // 传递删除回调
-                    />
-                </ScrollArea>
+
+                {/* Table — 新增 onDelete 属性 */}
+                <PasswdListTable
+                    filtered={passwdState.filtered_list}
+                    setDecryptTarget={setDecryptTarget}
+                    onRowClick={setUpdateTarget}
+                    onDelete={onDeleteClick}   // 传递删除回调
+                />
             </div>
 
             {/* Floating Add button */}
