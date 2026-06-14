@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getConfig } from "../../tauri_core/command_frontend";
+import { changeFile, getConfig } from "../../tauri_core/command_frontend";
 import {
     Dialog,
     DialogContent,
@@ -12,6 +12,7 @@ import { handleCheckOut, handleExport, handleChooseImportFile } from "../../taur
 import { message } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import ChangeSecretDialog from "../dialog/change_secret.dialog";
+import { ScrollArea } from "../ui/scroll-area";
 
 export default function ConfigPage() {
     const [passwdFilePath, setPasswdFilePath] = useState("");
@@ -34,8 +35,8 @@ export default function ConfigPage() {
         loadConfig();
     }, []);
 
-    const isAndroid = typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
-
+    let isAndroid = typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
+    isAndroid = true;
     const items = [
         { label: "密码文件存储路径", value: passwdFilePath },
         { label: "配置文件存储路径", value: configPath },
@@ -94,7 +95,6 @@ export default function ConfigPage() {
             <div className={`${isAndroid ? 'p-6 w-full' : 'p-8 w-4/5 max-w-4xl'} flex flex-col h-full`}>
                 <h1 className="mb-1">配置信息</h1>
                 <p className="text-muted-foreground mb-6">关于软件的行为与其他信息。</p>
-
                 <div className="rounded-xl border border-border divide-y divide-border min-w-0">
                     {items.map((item) => (
                         <Dialog key={item.label}>
@@ -119,6 +119,7 @@ export default function ConfigPage() {
                                 </div>
                             </DialogContent>
                         </Dialog>
+
                     ))}
                 </div>
                 <div className="mt-6 flex rounded-xl border border-border bg-card">
@@ -153,7 +154,19 @@ export default function ConfigPage() {
                     < button className="w-full min-h-10 flex-1 hover:bg-accent/50"
                         onClick={async () => {
                             try {
-                                handleCheckOut();
+                                let path = await handleCheckOut();
+                                if (path) {
+                                    await changeFile(path);
+                                    await message(`切换成功!`, {
+                                        title: "成功",
+                                        kind: "info",
+                                    });
+                                    // 刷新页面
+                                    const config = await getConfig();
+                                    setPasswdFilePath(config.passwd_file_path);
+                                    setConfigPath(config.profile_path);
+                                    setDefaultChar(config.default_fill_char);
+                                }
                             } catch (e) {
                                 // 弹出错误对话框
                                 await message(`切换失败：${(e as Error).message}`, {
@@ -184,6 +197,7 @@ export default function ConfigPage() {
                     </div>
                 </div>
                 <div className="flex-1"></div>
+
             </div>
             <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
                 <DialogContent className="sm:max-w-md">

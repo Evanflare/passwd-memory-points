@@ -1,7 +1,7 @@
 //! 所有更新已有数据的命令
 
 use crate::error::Error;
-use nickname_passwd::passwd::*;
+use passwd_memory_point::passwd::*;
 use std::sync::Mutex;
 use tauri::State;
 /// 通过这个命令uid来决定更新的对象，传入更新的元素
@@ -48,5 +48,19 @@ pub async fn change_secret_key(
             Ok(())
         }
         Err(e) => Err(Error::SomeElementFail(e.as_str().to_string())),
+    }
+}
+
+/// 更换文件
+#[tauri::command(rename_all = "snake_case")]
+pub async fn change_file(
+    file_path: &str,
+    state: State<'_, Mutex<PasswdVector>>,
+) -> Result<(), Error> {
+    // 获得passwd vector
+    let mut passwd_vector = state.lock().unwrap();
+    match passwd_vector.check_passwd_vector_file(file_path) {
+        Ok(_) => Ok(()),
+        Err(e) => Err(Error::FileOperationError(e.as_str().to_string())),
     }
 }

@@ -2,7 +2,7 @@
 
 use crate::commands::dto::PasswdSummary;
 use crate::error::Error;
-use nickname_passwd::passwd::PasswdVector;
+use passwd_memory_point::passwd::PasswdVector;
 use std::sync::Mutex;
 use tauri::State;
 

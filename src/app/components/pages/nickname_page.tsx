@@ -51,7 +51,7 @@ export default function NicknameManagerPage({ isAndroid }: { isAndroid: boolean 
     return (
         <div className="relative h-full flex justify-center">
             <div
-                className={`${isAndroid ? "p-6 w-full" : "p-8 w-4/5 max-w-4xl"} flex flex-col h-full`}
+                className={`${isAndroid ? "p-6 pb-0 w-full" : "p-8 w-4/5 max-w-4xl"} flex flex-col h-full`}
             >
                 {/* 头部区域保持不变 */}
                 <div className="flex items-start justify-between gap-4 mb-6">
@@ -158,8 +158,8 @@ export default function NicknameManagerPage({ isAndroid }: { isAndroid: boolean 
                     </p>
                 )}
 
-                <ScrollArea className="flex-1 min-h-0 rounded-b-2xl">
-                    <div className="grid gap-3">
+                <ScrollArea className="flex-1 min-h-0 rounded-b-2xl h-full w-full">
+                    <div className="flex flex-col gap-3">
                         {filteredIndices.length === 0 ? (
                             <div className="py-12 text-center text-muted-foreground text-sm">
                                 没有找到匹配的记忆点。
@@ -185,7 +185,9 @@ export default function NicknameManagerPage({ isAndroid }: { isAndroid: boolean 
                                                 className={`text-sm font-mono tracking-wide transition-all ${revealed
                                                     ? "text-foreground"
                                                     : "text-muted-foreground/60 select-none"
-                                                    }`}
+                                                    }
+                                                    truncate
+                                                    `}
                                             >
                                                 {displayPoint}
                                             </div>

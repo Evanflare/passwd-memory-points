@@ -2526,8 +2526,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "passwd-nickname-tauri"
-version = "0.1.0"
+name = "passwd-memory-points-tauri"
+version = "1.0.2"
 dependencies = [
  "dirs",
  "passwd-memory-point",

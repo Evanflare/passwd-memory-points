@@ -3,8 +3,8 @@
 use std::sync::Mutex;
 
 use crate::error::Error;
-use nickname_passwd::args_parse::Error as MyError;
-use nickname_passwd::passwd::PasswdVector;
+use passwd_memory_point::args_parse::Error as MyError;
+use passwd_memory_point::passwd::PasswdVector;
 use tauri::State;
 
 #[tauri::command(rename_all = "snake_case")]
