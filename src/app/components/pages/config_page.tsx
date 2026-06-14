@@ -199,7 +199,7 @@ export default function ConfigPage() {
                                     value={selectedFilePath || ""}
                                     readOnly
                                     placeholder="未选择文件"
-                                    className="flex-1 px-3 py-2 rounded-md border border-border bg-muted text-sm"
+                                    className="flex-1 px-3 py-2 rounded-md border border-border bg-muted text-sm min-w-0"
                                 />
                                 <Button type="button" variant="outline" onClick={handleSelectFile}>
                                     选择文件

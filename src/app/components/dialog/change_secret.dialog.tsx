@@ -1,9 +1,9 @@
-import { DialogTitle } from "@radix-ui/react-dialog";
-import { message } from "@tauri-apps/plugin-dialog";
+
 import { Dispatch, SetStateAction, useState } from "react";
-import { Dialog, DialogContent, DialogHeader } from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { changeSecret } from "../../tauri_core/command_frontend";
+import { message } from "@tauri-apps/plugin-dialog";
 
 export default function ChangeSecretDialog({ changeKeyDialogOpen, setChangeKeyDialogOpen }: {
     changeKeyDialogOpen: boolean;
