@@ -12,6 +12,7 @@ export default function NicknameDecryptDialog({
 }) {
     const [secretKey, setSecretKey] = useState("");
     const [error, setError] = useState(false);
+    const [err_message, setMessage] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -24,11 +25,12 @@ export default function NicknameDecryptDialog({
     }, [onClose]);
 
     const attempt = useCallback(async () => {
-        let plaintext_points = await plaintextPoints(secretKey);
-        if (plaintext_points) {
+        try {
+            let plaintext_points = await plaintextPoints(secretKey);
             onSuccess(plaintext_points);
-        } else {
+        } catch (e: any) {
             setError(true);
+            setMessage(`${(e as Error)?.message}`);
         }
     }, [secretKey, onSuccess]);
 
@@ -86,16 +88,16 @@ export default function NicknameDecryptDialog({
                                 }`}
                         />
                         {error && (
-                            <p className="text-xs text-destructive">
-                                密钥不正确，请重新尝试
-                            </p>
+                            <div>
+                                <p className="text-xs text-destructive">
+                                    密钥不正确，请重新尝试
+
+                                </p>
+                                <p className="text-xs text-destructive">
+                                    {err_message}
+                                </p>
+                            </div>
                         )}
-                        {/* <p className="text-xs text-muted-foreground">
-                            Demo hint: the key is{" "}
-                            <code className="bg-muted px-1 rounded">
-                                1234
-                            </code>
-                        </p> */}
                     </div>
                     <button
                         onClick={attempt}
