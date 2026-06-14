@@ -66,8 +66,9 @@ export default function App() {
   const asideRef = useRef<HTMLDivElement | null>(null);
 
   // 简单的 Android 检测（运行时）——用于在 Android 上调整布局
-  const isAndroid = typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
-
+  let isAndroid = typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
+  // 用于测试T
+  isAndroid = true;
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
   }, [dark]);
@@ -82,7 +83,7 @@ export default function App() {
   return (
     // {/* MARKER-MAKE-KIT-INVOKED */}
 
-    <div className="size-full flex flex-col min-h-screen bg-background text-foreground ">
+    <div className="size-full flex flex-col justify-between min-h-screen bg-background text-foreground ">
       {/* Header (Android 时显示暗黑切换和 Log) */}
       {isAndroid && (
         <header className="w-full border-b border-sidebar-border bg-sidebar flex-one px-4 pt-6 pb-2 flex items-center justify-between">
@@ -239,7 +240,7 @@ export default function App() {
 
       {/* Footer (Android 时将导航放在底部) */}
       {isAndroid && (
-        <footer className="w-full border-t border-sidebar-border bg-sidebar px-2 py-2 fixed flex-one bottom-0 left-0 right-0">
+        <footer className="w-full border-t border-sidebar-border bg-sidebar px-2 py-2 flex-one bottom-0 left-0 right-0">
           <nav className="max-w-xl mx-auto flex items-center justify-between">
             {NAV_ITEMS.map((item) => {
               const active = activePage === item.id;
