@@ -221,6 +221,17 @@ export default function AddPasswordDialog({ onClosed, onAdded, hidden }: AddPass
         setParts(prev => prev.filter((_, i) => i !== index));
     };
 
+    const clearForm = () => {
+        setName("");
+        setDescription("");
+        setUnique("");
+        setParts([""]);
+        setRandom(false);
+        // setKey("");
+        setLoading(false);
+        setError(null);
+    }
+
     const handleSubmit = async () => {
         console.log("提交新的passwd...");
         if (!name.trim()) {
@@ -242,6 +253,8 @@ export default function AddPasswordDialog({ onClosed, onAdded, hidden }: AddPass
         console.log("校验通过，调用后端接口...");
         setLoading(true);
         setError(null);
+        // 清空
+        clearForm();
         try {
             const filteredParts = parts.filter(p => p.trim() !== "");
             await addPasswd(
@@ -443,16 +456,7 @@ export default function AddPasswordDialog({ onClosed, onAdded, hidden }: AddPass
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => {
-                                        setName("");
-                                        setDescription("");
-                                        setUnique("");
-                                        setParts([""]);
-                                        setRandom(false);
-                                        // setKey("");
-                                        setLoading(false);
-                                        setError(null);
-                                    }}
+                                    onClick={clearForm}
                                     className="w-full py-2 rounded-lg border border-border bg-muted/10 text-muted-foreground hover:bg-muted/20 transition-colors text-sm"
                                 >
                                     重置表单
