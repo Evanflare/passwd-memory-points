@@ -86,7 +86,7 @@ export default function App() {
     <div className="size-full flex flex-col justify-between min-h-screen bg-background text-foreground ">
       {/* Header (Android 时显示暗黑切换和 Log) */}
       {isAndroid && (
-        <header className="w-full border-b border-sidebar-border bg-sidebar flex-one px-4 pt-6 pb-2 flex items-center justify-between">
+        <header className="w-full border-b border-sidebar-border bg-sidebar flex-one px-4 pt-8 pb-2 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shrink-0">
               <ShieldCheck size={20} className="text-primary-foreground" />
