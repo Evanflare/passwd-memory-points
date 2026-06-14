@@ -50,3 +50,17 @@ pub async fn change_secret_key(
         Err(e) => Err(Error::SomeElementFail(e.as_str().to_string())),
     }
 }
+
+/// 更换文件
+#[tauri::command(rename_all = "snake_case")]
+pub async fn change_file(
+    file_path: &str,
+    state: State<'_, Mutex<PasswdVector>>,
+) -> Result<(), Error> {
+    // 获得passwd vector
+    let mut passwd_vector = state.lock().unwrap();
+    match passwd_vector.check_passwd_vector_file(file_path) {
+        Ok(_) => Ok(()),
+        Err(e) => Err(Error::FileOperationError(e.as_str().to_string())),
+    }
+}

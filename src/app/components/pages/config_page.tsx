@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getConfig } from "../../tauri_core/command_frontend";
+import { changeFile, getConfig } from "../../tauri_core/command_frontend";
 import {
     Dialog,
     DialogContent,
@@ -153,7 +153,19 @@ export default function ConfigPage() {
                     < button className="w-full min-h-10 flex-1 hover:bg-accent/50"
                         onClick={async () => {
                             try {
-                                handleCheckOut();
+                                let path = await handleCheckOut();
+                                if (path) {
+                                    await changeFile(path);
+                                    await message(`切换成功!`, {
+                                        title: "成功",
+                                        kind: "info",
+                                    });
+                                    // 刷新页面
+                                    const config = await getConfig();
+                                    setPasswdFilePath(config.passwd_file_path);
+                                    setConfigPath(config.profile_path);
+                                    setDefaultChar(config.default_fill_char);
+                                }
                             } catch (e) {
                                 // 弹出错误对话框
                                 await message(`切换失败：${(e as Error).message}`, {

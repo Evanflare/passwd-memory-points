@@ -23,7 +23,7 @@ const handleChooseImportFile = async (): Promise<string | null> => {
 };
 
 // 切换按钮的处理函数
-const handleCheckOut = async () => {
+const handleCheckOut = async (): Promise<string | null> => {
     try {
         const selected = await open({
             multiple: false,
@@ -31,12 +31,9 @@ const handleCheckOut = async () => {
             title: "切换到文件",
             filters: [{ name: "toml", extensions: ["toml"] }]
         });
-        if (!selected) return;
+        if (!selected) return null;
 
-        // 调用 Rust 命令，传入文件路径
-        const importedData = await invoke('checkout_file', { path: selected });
-        console.log("切换的数据", importedData);
-        // 更新你的前端状态...
+        return selected;
     } catch (error: any) {
         console.error("切换失败", error);
         throw Error("切换失败:" + error?.message)

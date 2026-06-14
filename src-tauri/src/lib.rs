@@ -28,6 +28,7 @@ pub fn run() {
             get_memory_points,
             plaintext_points,
             change_secret_key,
+            change_file,
             export_to_file,
             add_nickname,
             search_passwds,
