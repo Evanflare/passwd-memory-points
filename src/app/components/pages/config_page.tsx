@@ -36,7 +36,7 @@ export default function ConfigPage() {
     }, []);
 
     let isAndroid = typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
-    isAndroid = true;
+    //isAndroid = true;
     const items = [
         { label: "密码文件存储路径", value: passwdFilePath },
         { label: "配置文件存储路径", value: configPath },

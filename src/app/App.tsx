@@ -68,7 +68,7 @@ export default function App() {
   // 简单的 Android 检测（运行时）——用于在 Android 上调整布局
   let isAndroid = typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
   // 用于测试T
-  isAndroid = true;
+  //isAndroid = true;
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
   }, [dark]);
