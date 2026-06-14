@@ -1,5 +1,5 @@
-use nickname_passwd::args_parse::Error;
-use nickname_passwd::passwd::PasswdVector;
+use passwd_memory_point::args_parse::Error;
+use passwd_memory_point::passwd::PasswdVector;
 
 /// 校验密码是否正确,若成功返回密码，失败则返回错误
 pub fn check_secret_right_or_error(

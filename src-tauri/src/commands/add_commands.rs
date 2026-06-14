@@ -1,6 +1,6 @@
 use crate::error::Error;
 use crate::utils::passwd_vec_utils::check_secret_right_or_error;
-use nickname_passwd::passwd::{nickname::Nickname, Passwd, PasswdVector};
+use passwd_memory_point::passwd::{nickname::Nickname, Passwd, PasswdVector};
 use std::sync::Mutex;
 use tauri::State;
 

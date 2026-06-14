@@ -2513,7 +2513,7 @@ dependencies = [
 
 [[package]]
 name = "passwd-memory-point"
-version = "0.1.2"
+version = "1.0.2"
 dependencies = [
  "chacha20poly1305",
  "hex",
@@ -2526,8 +2526,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "passwd-nickname-tauri"
-version = "0.1.0"
+name = "passwd-memory-points-tauri"
+version = "1.0.2"
 dependencies = [
  "dirs",
  "passwd-memory-point",
