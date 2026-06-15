@@ -92,118 +92,122 @@ export default function ConfigPage() {
 
     return (
         <div className="relative h-full w-full flex justify-center">
-            <div className={`${isAndroid ? 'p-6 w-full' : 'p-8 w-4/5 max-w-4xl'} flex flex-col h-full`}>
+            <div className={`${isAndroid ? 'p-6 w-full' : 'p-6 pt-8 w-4/5'} flex flex-col h-full`}>
                 <h1 className="mb-1">配置信息</h1>
                 <p className="text-muted-foreground mb-6">关于软件的行为与其他信息。</p>
-                <ScrollArea>
-                    <div className="max-w-[calc(100vw-48px)]">
-                        <div className="rounded-xl border border-border divide-y divide-border min-w-0">
-                            {items.map((item) => (
-                                <Dialog key={item.label}>
-                                    <DialogTrigger asChild>
-                                        <div className="flex flex-col justify-between p-4 bg-card min-w-0 cursor-pointer hover:bg-accent/50 transition-colors">
-                                            <div className="font-medium">{item.label}</div>
-                                            <div className="text-sm text-muted-foreground truncate">{item.value}</div>
-                                        </div>
-                                    </DialogTrigger>
-                                    <DialogContent className="sm:max-w-md">
-                                        <DialogHeader>
-                                            <DialogTitle>{item.label}</DialogTitle>
-                                        </DialogHeader>
-                                        <div className="space-y-4">
-                                            <div className="text-sm font-medium">完整内容</div>
-                                            <div className="p-3 bg-muted rounded-md break-all whitespace-pre-wrap text-sm">
-                                                {item.value}
+                <ScrollArea >
+                    <div className="flex justify-center">
+                        <div className={`${isAndroid ? "max-w-[calc(100vw-48px)]" : 'w-full'}`}>
+
+                            <div className="rounded-xl border border-border divide-y divide-border min-w-0">
+                                {items.map((item) => (
+                                    <Dialog key={item.label}>
+                                        <DialogTrigger asChild>
+                                            <div className="flex flex-col justify-between p-4 bg-card min-w-0 cursor-pointer hover:bg-accent/50 transition-colors">
+                                                <div className="font-medium">{item.label}</div>
+                                                <div className="text-sm text-muted-foreground truncate">{item.value}</div>
                                             </div>
-                                            <Button onClick={() => handleCopy(item.value)} variant="outline" className="w-full">
-                                                一键复制
-                                            </Button>
-                                        </div>
-                                    </DialogContent>
-                                </Dialog>
+                                        </DialogTrigger>
+                                        <DialogContent className="sm:max-w-md">
+                                            <DialogHeader>
+                                                <DialogTitle>{item.label}</DialogTitle>
+                                            </DialogHeader>
+                                            <div className="space-y-4">
+                                                <div className="text-sm font-medium">完整内容</div>
+                                                <div className="p-3 bg-muted rounded-md break-all whitespace-pre-wrap text-sm">
+                                                    {item.value}
+                                                </div>
+                                                <Button onClick={() => handleCopy(item.value)} variant="outline" className="w-full">
+                                                    一键复制
+                                                </Button>
+                                            </div>
+                                        </DialogContent>
+                                    </Dialog>
 
-                            ))}
-                        </div>
-                        <div className="mt-6 flex rounded-xl border border-border bg-card">
-                            < button className="w-full min-h-10 flex-1 hover:bg-accent/50 border-r-2"
-                                onClick={async () => {
-                                    try {
-                                        setImportDialogOpen(true)
-                                    } catch (e) {
-                                        // 弹出错误对话框
-                                        await message(`导入失败：${(e as Error).message}`, {
-                                            title: "错误",
-                                            kind: "error",
-                                        });
-                                    }
+                                ))}
+                            </div>
+                            <div className="mt-6 flex rounded-xl border border-border bg-card">
+                                < button className="w-full min-h-10 flex-1 hover:bg-accent/50 border-r-2"
+                                    onClick={async () => {
+                                        try {
+                                            setImportDialogOpen(true)
+                                        } catch (e) {
+                                            // 弹出错误对话框
+                                            await message(`导入失败：${(e as Error).message}`, {
+                                                title: "错误",
+                                                kind: "error",
+                                            });
+                                        }
 
-                                }}
-                            >导入</button>
-                            < button className="w-full min-h-10 flex-1 hover:bg-accent/50 border-r-2"
-                                onClick={async () => {
-                                    try {
-                                        await handleExport();
-                                        await message(`导出成功!`, {
-                                            title: "成功",
-                                            kind: "info",
-                                        });
-                                    } catch (e) {
-                                        // 弹出错误对话框
-                                        await message(`导出失败：${e}`, {
-                                            title: "错误",
-                                            kind: "error",
-                                        });
-                                    }
-
-                                }}
-                            >导出</button>
-                            < button className="w-full min-h-10 flex-1 hover:bg-accent/50"
-                                onClick={async () => {
-                                    try {
-                                        let path = await handleCheckOut();
-                                        if (path) {
-                                            await changeFile(path);
-                                            await message(`切换成功!`, {
+                                    }}
+                                >导入</button>
+                                < button className="w-full min-h-10 flex-1 hover:bg-accent/50 border-r-2"
+                                    onClick={async () => {
+                                        try {
+                                            await handleExport();
+                                            await message(`导出成功!`, {
                                                 title: "成功",
                                                 kind: "info",
                                             });
-                                            // 刷新页面
-                                            const config = await getConfig();
-                                            setPasswdFilePath(config.passwd_file_path);
-                                            setConfigPath(config.profile_path);
-                                            setDefaultChar(config.default_fill_char);
+                                        } catch (e) {
+                                            // 弹出错误对话框
+                                            await message(`导出失败：${e}`, {
+                                                title: "错误",
+                                                kind: "error",
+                                            });
                                         }
-                                    } catch (e) {
-                                        // 弹出错误对话框
-                                        await message(`切换失败：${(e as Error).message}`, {
-                                            title: "错误",
-                                            kind: "error",
-                                        });
-                                    }
 
-                                }}
-                            >切换</button>
-                        </div>
-                        <div className="mt-2 flex rounded-xl border border-border bg-card">
-                            <button
-                                className="w-full min-h-10 flex-1 hover:bg-accent/50"
-                                onClick={() => setChangeKeyDialogOpen(true)}
-                            >
-                                修改密钥
-                            </button>
-                        </div>
-                        <div className="mt-6 p-4 rounded-xl border border-border bg-card">
-                            <div className="text-sm font-medium mb-1">软件版本</div>
-                            <div className="text-sm text-muted-foreground">
-                                {import.meta.env.VITE_APP_NAME} v{import.meta.env.VITE_APP_VERSION} — 构建于 {import.meta.env.VITE_BUILD_TIME}
+                                    }}
+                                >导出</button>
+                                < button className="w-full min-h-10 flex-1 hover:bg-accent/50"
+                                    onClick={async () => {
+                                        try {
+                                            let path = await handleCheckOut();
+                                            if (path) {
+                                                await changeFile(path);
+                                                await message(`切换成功!`, {
+                                                    title: "成功",
+                                                    kind: "info",
+                                                });
+                                                // 刷新页面
+                                                const config = await getConfig();
+                                                setPasswdFilePath(config.passwd_file_path);
+                                                setConfigPath(config.profile_path);
+                                                setDefaultChar(config.default_fill_char);
+                                            }
+                                        } catch (e) {
+                                            // 弹出错误对话框
+                                            await message(`切换失败：${(e as Error).message}`, {
+                                                title: "错误",
+                                                kind: "error",
+                                            });
+                                        }
+
+                                    }}
+                                >切换</button>
                             </div>
-                            <div className="mt-4 pt-2">
-                                <div className="font-medium">作者</div>
-                                <div className="text-sm text-muted-foreground">蒙煋Evanflare</div>
+                            <div className="mt-2 flex rounded-xl border border-border bg-card">
+                                <button
+                                    className="w-full min-h-10 flex-1 hover:bg-accent/50"
+                                    onClick={() => setChangeKeyDialogOpen(true)}
+                                >
+                                    修改密钥
+                                </button>
                             </div>
+                            <div className="mt-6 p-4 rounded-xl border border-border bg-card">
+                                <div className="text-sm font-medium mb-1">软件版本</div>
+                                <div className="text-sm text-muted-foreground">
+                                    {import.meta.env.VITE_APP_NAME} v{import.meta.env.VITE_APP_VERSION} — 构建于 {import.meta.env.VITE_BUILD_TIME}
+                                </div>
+                                <div className="mt-4 pt-2">
+                                    <div className="font-medium">作者</div>
+                                    <div className="text-sm text-muted-foreground">蒙煋Evanflare</div>
+                                </div>
+                            </div>
+                            <div className="flex-1"></div>
                         </div>
-                        <div className="flex-1"></div>
                     </div>
+
                 </ScrollArea>
             </div>
             <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
