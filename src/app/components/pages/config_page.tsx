@@ -62,7 +62,7 @@ export default function ConfigPage() {
                 setSelectedFilePath(path);
             }
         } catch (error) {
-            await message(`选择文件失败：${(error as Error).message}`, { title: "错误", kind: "error" });
+            await message(`失败：${(error as Error).message}`, { title: "错误", kind: "error" });
         }
     };
 
@@ -95,7 +95,7 @@ export default function ConfigPage() {
             <div className={`${isAndroid ? 'p-6 w-full' : 'p-6 pt-8 w-4/5'} flex flex-col h-full`}>
                 <h1 className="mb-1">配置信息</h1>
                 <p className="text-muted-foreground mb-6">关于软件的行为与其他信息。</p>
-                <ScrollArea >
+                <ScrollArea className="m-1">
                     <div className="flex justify-center">
                         <div className={`${isAndroid ? "max-w-[calc(100vw-48px)]" : 'w-full'}`}>
 
@@ -144,8 +144,8 @@ export default function ConfigPage() {
                                 < button className="w-full min-h-10 flex-1 hover:bg-accent/50 border-r-2"
                                     onClick={async () => {
                                         try {
-                                            await handleExport();
-                                            await message(`导出成功!`, {
+                                            const res = await handleExport();
+                                            if (res) await message(`导出成功!`, {
                                                 title: "成功",
                                                 kind: "info",
                                             });

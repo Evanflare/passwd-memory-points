@@ -16,6 +16,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_android_fs::init())
         .setup(|app| {
             let passwd_vector = get_passwd_vector_by_apphandle(app);
             let state = Mutex::new(passwd_vector);
