@@ -1,5 +1,6 @@
 import { open, save } from '@tauri-apps/plugin-dialog';
 import { invoke } from '@tauri-apps/api/core';
+import { writeTextFile } from '@tauri-apps/plugin-fs';
 
 // 导入按钮的处理函数
 const handleChooseImportFile = async (): Promise<string | null> => {
@@ -52,11 +53,12 @@ const handleExport = async () => {
         if (!savePath) return;
 
         // 调用tauri命令
-        await invoke('export_to_file', { path: savePath });
+        let toml_text: string = await invoke('export_string');
+        await writeTextFile(savePath, toml_text);
         console.log("导出成功");
     } catch (error: any) {
         console.error("导出失败", error);
-        throw Error("导出失败：" + error?.message)
+        throw Error("导出失败：" + error)
     }
 };
 

@@ -8,11 +8,11 @@ use passwd_memory_point::passwd::PasswdVector;
 use tauri::State;
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn export_to_file(path: &str, state: State<'_, Mutex<PasswdVector>>) -> Result<(), Error> {
+pub fn export_string(state: State<'_, Mutex<PasswdVector>>) -> Result<String, Error> {
     // 获得passwd vector
     let passwd_vector = state.lock().unwrap();
-    match passwd_vector.save_to_path(path) {
-        Ok(_) => Ok(()),
+    match passwd_vector.get_save_string() {
+        Ok(toml_text) => Ok(toml_text),
         Err(MyError::FilePathIsWrong(s)) => Err(Error::FileOperationError(s)),
         _ => Err(Error::FileOperationError("无法导出文件".to_string())),
     }

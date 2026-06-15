@@ -10,6 +10,8 @@
     "opener:default",
     "dialog:default",
     "dialog:allow-open",
-    "dialog:allow-save"
+    "dialog:allow-save",
+    "fs:allow-write-text-file",
+    "fs:default"
   ]
 }

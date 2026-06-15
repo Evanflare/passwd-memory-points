@@ -14,6 +14,7 @@ pub use commands::*;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             let passwd_vector = get_passwd_vector_by_apphandle(app);
@@ -29,7 +30,7 @@ pub fn run() {
             plaintext_points,
             change_secret_key,
             change_file,
-            export_to_file,
+            export_string,
             add_nickname,
             search_passwds,
             get_config,

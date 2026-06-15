@@ -142,10 +142,14 @@ export default function ConfigPage() {
                             < button className="w-full min-h-10 flex-1 hover:bg-accent/50 border-r-2"
                                 onClick={async () => {
                                     try {
-                                        handleExport();
+                                        await handleExport();
+                                        await message(`导出成功!`, {
+                                            title: "成功",
+                                            kind: "info",
+                                        });
                                     } catch (e) {
                                         // 弹出错误对话框
-                                        await message(`导出失败：${(e as Error).message}`, {
+                                        await message(`导出失败：${e}`, {
                                             title: "错误",
                                             kind: "error",
                                         });

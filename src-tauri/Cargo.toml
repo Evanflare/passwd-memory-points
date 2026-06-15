@@ -26,3 +26,4 @@ passwd-memory-point = { package = "passwd-memory-point", path = 'D:\Programming\
 thiserror = "2"
 dirs = "6.0.0"
 tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
