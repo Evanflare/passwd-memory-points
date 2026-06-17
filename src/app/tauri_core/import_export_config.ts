@@ -14,9 +14,6 @@ const handleChooseImportFile = async (): Promise<string | null> => {
         if (!selected) return null;
         return selected;
 
-        // // 调用 Rust 命令，传入文件路径
-        // const importedData = await invoke('import_from_file', { path: selected, local_secret, import_secret });
-        // console.log("导入的数据", importedData);
     } catch (error: any) {
         console.error("导入失败", error);
         throw Error("导入失败:" + error?.message)
@@ -43,19 +40,20 @@ const handleCheckOut = async (): Promise<string | null> => {
 
 
 // 导出按钮的处理函数
-const handleExport = async () => {
+const handleExport = async (): Promise<boolean> => {
     try {
         const savePath = await save({
             title: "导出数据",
             defaultPath: `passwd-memoty-points_${Date.now()}.toml`,
             filters: [{ name: "toml", extensions: ["toml"] }]
         });
-        if (!savePath) return;
+        if (!savePath) return false;
 
         // 调用tauri命令
         let toml_text: string = await invoke('export_string');
         await writeTextFile(savePath, toml_text);
         console.log("导出成功");
+        return true;
     } catch (error: any) {
         console.error("导出失败", error);
         throw Error("导出失败：" + error)

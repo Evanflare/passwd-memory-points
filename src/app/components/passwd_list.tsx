@@ -13,8 +13,8 @@ export default function PasswdListTable({
     onDelete: (uid: string) => void;
 }) {
     return (
-        <ScrollArea className="h-[500px] rounded-xl border border-border">
-            <table className="min-w-full w-full text-sm">
+        <ScrollArea className="rounded-xl">
+            <table className="w-full text-sm  border border-border rounded-xl">
                 <thead className="sticky top-0 bg-muted/50 z-10">
                     <tr className="border-b border-border">
                         <th className="text-left px-4 py-3 text-muted-foreground">名称</th>

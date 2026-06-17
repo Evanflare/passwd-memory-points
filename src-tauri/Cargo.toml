@@ -27,6 +27,7 @@ thiserror = "2"
 dirs = "6.0.0"
 tauri-plugin-dialog = "2"
 tauri-plugin-fs = "2"
+tauri-plugin-android-fs = "28.2.0"
 chacha20poly1305 = "0.10.1"
 sysdirs = { version = "0.9.4", features = ["android-auto"] }
 hex = "0.4.3"

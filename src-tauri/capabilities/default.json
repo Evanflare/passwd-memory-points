@@ -12,6 +12,14 @@
     "dialog:allow-open",
     "dialog:allow-save",
     "fs:allow-write-text-file",
-    "fs:default"
+    "fs:default",
+    {
+      "identifier": "fs:allow-read-text-file",
+      "allow": [
+        {
+          "path": "**"
+        }
+      ]
+    }
   ]
 }
