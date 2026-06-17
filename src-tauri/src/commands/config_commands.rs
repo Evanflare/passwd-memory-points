@@ -1,17 +1,15 @@
 //! 关于配置信息导入、导出、切换、更新等命令
 //!
 
-use std::fs;
-use std::sync::Mutex;
-
-use std::io::Read;
-use tauri::AppHandle;
-use tauri_plugin_android_fs::{AndroidFsExt, FileAccessMode, FileUri};
-
 use crate::error::Error;
 use passwd_memory_point::args_parse::Error as MyError;
 use passwd_memory_point::passwd::PasswdVector;
+use std::fs;
+use std::io::Read;
+use std::sync::Mutex;
+use tauri::AppHandle;
 use tauri::State;
+use tauri_plugin_android_fs::{AndroidFsExt, FileAccessMode, FileUri};
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn export_string(state: State<'_, Mutex<PasswdVector>>) -> Result<String, Error> {
