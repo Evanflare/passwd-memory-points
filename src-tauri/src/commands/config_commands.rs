@@ -5,14 +5,12 @@ use std::fs;
 use std::sync::Mutex;
 
 use std::io::Read;
-use tauri::AppHandle;
+use tauri::{AppHandle, State};
 use tauri_plugin_android_fs::{AndroidFsExt, FileAccessMode, FileUri};
 
 use crate::core::error::Error as MyError;
-use crate::core::passwd::PasswdVector;
+use crate::core::PasswdVector;
 use crate::error::Error;
-use std::sync::Mutex;
-use tauri::State;
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn export_string(state: State<'_, Mutex<PasswdVector>>) -> Result<String, Error> {
