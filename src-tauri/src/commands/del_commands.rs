@@ -2,8 +2,8 @@
 
 use std::sync::Mutex;
 
+use crate::core::passwd::PasswdVector;
 use crate::{error::Error, utils::passwd_vec_utils::check_secret_right_or_error};
-use passwd_memory_point::passwd::PasswdVector;
 use tauri::State;
 
 /// 用来删除tauri中的passwd vector状态中的memory points 中的项。

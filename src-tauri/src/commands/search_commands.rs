@@ -2,8 +2,8 @@
 
 use super::list_commands::list_passwds;
 use crate::commands::dto::PasswdSummary;
+use crate::core::passwd::PasswdVector;
 use crate::error::Error;
-use passwd_memory_point::passwd::PasswdVector;
 use std::sync::Mutex;
 use tauri::State;
 /// 列出所有密码条目的摘要信息，返回一个包含唯一ID、名称和描述的列表

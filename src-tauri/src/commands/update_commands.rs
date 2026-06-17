@@ -1,7 +1,7 @@
 //! 所有更新已有数据的命令
 
+use crate::core::passwd::*;
 use crate::error::Error;
-use passwd_memory_point::passwd::*;
 use std::sync::Mutex;
 use tauri::State;
 /// 通过这个命令uid来决定更新的对象，传入更新的元素

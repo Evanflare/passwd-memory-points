@@ -5,12 +5,14 @@ use tauri::generate_context;
 use tauri::Manager;
 /// 模块定义
 pub mod commands;
+pub mod core;
 pub mod error;
 pub mod status;
 pub mod utils;
 /// 重导出
 pub use commands::*;
 
+const APP_NAME: &str = "passwd-memory-points";
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()

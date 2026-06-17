@@ -22,8 +22,18 @@ tauri = { version = "2", features = ["isolation"] }
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-passwd-memory-point = { package = "passwd-memory-point", path = 'D:\Programming\Rust\workspace\rust_study\passwd-nickname' }
+#passwd-memory-point = { package = "passwd-memory-point", path = 'D:\Programming\Rust\workspace\rust_study\passwd-nickname' }
 thiserror = "2"
 dirs = "6.0.0"
 tauri-plugin-dialog = "2"
 tauri-plugin-fs = "2"
+chacha20poly1305 = "0.10.1"
+sysdirs = { version = "0.9.4", features = ["android-auto"] }
+hex = "0.4.3"
+toml = "1.1.2"
+rand = "0.10.1"
+rpassword = "7.5.3"
+[dependencies.uuid]
+version = "1.23.1"
+# Lets you generate random UUIDs
+features = ["v4"]

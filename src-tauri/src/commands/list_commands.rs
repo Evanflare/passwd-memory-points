@@ -1,8 +1,8 @@
 //! list commands 列表相关的命令: 无须参数或者默认参数即可返回一个列表，前端可以根据这个列表展示界面或者进行下一步操作
 
 use crate::commands::dto::PasswdSummary;
+use crate::core::passwd::PasswdVector;
 use crate::error::Error;
-use passwd_memory_point::passwd::PasswdVector;
 use std::sync::Mutex;
 use tauri::State;
 

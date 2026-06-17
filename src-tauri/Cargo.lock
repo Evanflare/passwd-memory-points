@@ -2512,33 +2512,25 @@ dependencies = [
 ]
 
 [[package]]
-name = "passwd-memory-point"
+name = "passwd-memory-points-tauri"
 version = "1.0.2"
 dependencies = [
  "chacha20poly1305",
+ "dirs",
  "hex",
  "rand",
  "rpassword",
  "serde",
- "sysdirs",
- "toml 1.1.2+spec-1.1.0",
- "uuid",
-]
-
-[[package]]
-name = "passwd-memory-points-tauri"
-version = "1.0.2"
-dependencies = [
- "dirs",
- "passwd-memory-point",
- "serde",
  "serde_json",
+ "sysdirs",
  "tauri",
  "tauri-build",
  "tauri-plugin-dialog",
  "tauri-plugin-fs",
  "tauri-plugin-opener",
  "thiserror 2.0.18",
+ "toml 1.1.2+spec-1.1.0",
+ "uuid",
 ]
 
 [[package]]
@@ -5397,9 +5389,9 @@ dependencies = [
 
 [[package]]
 name = "zeroize"
-version = "1.8.2"
+version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b97154e67e32c85465826e8bcc1c59429aaaf107c1e4a9e53c8d8ccd5eff88d0"
+checksum = "e13c156562582aa81c60cb29407084cdb54c4164760106ab78e6c5b0858cf64e"
 
 [[package]]
 name = "zerotrie"

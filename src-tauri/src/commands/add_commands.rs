@@ -1,6 +1,7 @@
+use crate::core::passwd::{Passwd, PasswdVector};
+use crate::core::Nickname;
 use crate::error::Error;
 use crate::utils::passwd_vec_utils::check_secret_right_or_error;
-use passwd_memory_point::passwd::{nickname::Nickname, Passwd, PasswdVector};
 use std::sync::Mutex;
 use tauri::State;
 
@@ -48,7 +49,7 @@ pub fn add_passwd(
         &descript,
         &plaintext,
         &key,
-        passwd_vector.config.default_fill_char,
+        passwd_vector.config.fill_char,
     );
     passwd_vector.add_passwd(passwd);
     passwd_vector

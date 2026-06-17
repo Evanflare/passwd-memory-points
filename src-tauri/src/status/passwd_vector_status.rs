@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use passwd_memory_point::{config::AppConfig, passwd::PasswdVector};
+use crate::core::{config::AppConfig, passwd::PasswdVector};
 use tauri::{App, Manager};
 /// 用 AppHandle 在 Android（优先）与其它平台上解析 confy/config.toml 的路径
 /// 直接得到passwd_vector_status

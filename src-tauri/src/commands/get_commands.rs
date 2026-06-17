@@ -1,8 +1,8 @@
 //! get commands 获得的对象都是需要解密的明文
 
+use crate::core::passwd::PasswdVector;
 use crate::dto::ConfigInfo;
 use crate::error::Error;
-use passwd_memory_point::passwd::PasswdVector;
 use std::sync::Mutex;
 use tauri::State;
 
@@ -30,7 +30,7 @@ pub fn get_passwd(
 pub fn get_config(state: State<'_, Mutex<PasswdVector>>) -> Result<ConfigInfo, Error> {
     let passwd_vector = state.lock().unwrap();
     Ok(ConfigInfo {
-        default_fill_char: passwd_vector.config.default_fill_char,
+        default_fill_char: passwd_vector.config.fill_char,
         passwd_file_path: passwd_vector.config.passwd_file_path.clone(),
         profile_path: passwd_vector.config.profile_path.clone(),
     })
