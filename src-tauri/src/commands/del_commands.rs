@@ -2,7 +2,7 @@
 
 use std::sync::Mutex;
 
-use crate::core::passwd::PasswdVector;
+use crate::core::PasswdManager;
 use crate::{error::Error, utils::passwd_vec_utils::check_secret_right_or_error};
 use tauri::State;
 
@@ -11,12 +11,12 @@ use tauri::State;
 pub fn del_memory_point(
     point_str: &str,
     secret_key: &str,
-    state: State<'_, Mutex<PasswdVector>>,
+    state: State<'_, Mutex<PasswdManager>>,
 ) -> Result<(), Error> {
     // 得到passwdvector
-    let mut passwd_vector = state.lock().unwrap();
-    if passwd_vector.nickname.del_nickname(point_str, secret_key) {
-        let _ = passwd_vector.store();
+    let mut manager = state.lock().unwrap();
+    if manager.passwds.nickname.del_nickname(point_str, secret_key) {
+        let _ = manager.passwds.store(&manager.config.passwd_file_path);
         return Ok(());
     } else {
         return Err(Error::NotFoundItem(
@@ -30,17 +30,17 @@ pub fn del_memory_point(
 pub fn del_passwd_by_uid(
     uid: &str,
     secret_key: &str,
-    state: State<'_, Mutex<PasswdVector>>,
+    state: State<'_, Mutex<PasswdManager>>,
 ) -> Result<(), Error> {
     // 得到passwdvector
-    let mut passwd_vector = state.lock().unwrap();
+    let mut manager = state.lock().unwrap();
     // 先校验密码是否正确
-    match check_secret_right_or_error(&passwd_vector, secret_key) {
+    match check_secret_right_or_error(&manager.passwds, secret_key) {
         Ok(_) => {}
         Err(_) => return Err(Error::SecretKeyError("密码不正确".to_string())),
     }
-    if passwd_vector.remove_passwd_by_unique_id(uid) {
-        let _ = passwd_vector.store();
+    if manager.passwds.remove_passwd_by_unique_id(uid) {
+        let _ = manager.passwds.store(&manager.config.passwd_file_path);
         return Ok(());
     } else {
         return Err(Error::NotFoundItem("无法找到对象".to_string()));

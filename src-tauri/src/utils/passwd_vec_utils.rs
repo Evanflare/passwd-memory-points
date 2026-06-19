@@ -1,17 +1,17 @@
-use crate::core::error::Error;
+use crate::core::error::CoreError;
 use crate::core::passwd::PasswdVector;
 
 /// 校验密码是否正确,若成功返回密码，失败则返回错误
 pub fn check_secret_right_or_error(
     passwd_vec: &PasswdVector,
     user_key: &str,
-) -> Result<String, Error> {
+) -> Result<String, CoreError> {
     if passwd_vec.nickname.get_len() != 0 {
         // 检验密钥
         if passwd_vec.nickname.check_decryption_key(user_key) {
             return Ok(user_key.to_string());
         } else {
-            return Err(Error::SecretKeyWrong);
+            return Err(CoreError::SecretKeyWrong);
         }
     } else if passwd_vec.get_passwd_vec_len() != 0 {
         // 将passwd vec中的第一个元素取出校验
@@ -23,7 +23,7 @@ pub fn check_secret_right_or_error(
         {
             return Ok(user_key.to_string());
         } else {
-            return Err(Error::SecretKeyWrong);
+            return Err(CoreError::SecretKeyWrong);
         }
     } else {
         return Ok(user_key.to_string());

@@ -1,15 +1,17 @@
 //! 管理密码对象
 //!
 
-use crate::core::config::*;
 use crate::core::crypt::{decrypt, decypt_string, encrypt};
-use crate::core::error::Error::{self, SecretKeyDifferent};
-use crate::core::nickname::*;
+use crate::core::error::CoreError::{self};
+use crate::core::{nickname::*, AppConfig};
+use crate::platform::FileOperator;
 
 use ::serde::{Deserialize, Serialize};
 use ::uuid::*;
+
 use std::fs;
-use std::path::Path;
+
+use std::path::{Path, PathBuf};
 
 /// 密码对象
 /// passwd 不应该有除了数据操作外其他的操作，只是作为一个数据的容器而存在。
@@ -100,7 +102,7 @@ impl Passwd {
         descript: Option<&str>,
         plaintext: Option<&str>,
         user_key: &str,
-    ) -> Result<(), Error> {
+    ) -> Result<(), CoreError> {
         // 先校验密钥是否正确，解密是否成功，如果不成功则不修改对象
         match self.decypted_passwd(user_key) {
             Ok(_) => {
@@ -120,27 +122,54 @@ impl Passwd {
                 }
                 Ok(())
             }
-            Err(_) => Err(Error::SecretKeyWrong),
+            Err(_) => Err(CoreError::SecretKeyWrong),
         }
     }
 }
 
 /// 密码vector，存储所有密码
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Default, Serialize, Deserialize)]
 pub struct PasswdVector {
     vec: Vec<Passwd>,
     pub nickname: Nickname,
-    #[serde(skip_serializing, default)]
-    pub config: AppConfig,
+    #[serde(skip_serializing, skip_deserializing)]
+    pub file_operator: FileOperator,
 }
 
 impl PasswdVector {
-    /// 空对象
-    pub fn new(config: AppConfig) -> Self {
-        Self {
-            vec: Vec::new(),
-            nickname: Nickname::new(config.fill_char),
-            config,
+    /// default出来的对象需要init才能正常使用对象
+    pub fn init(&mut self, file_operator: FileOperator, config: &AppConfig) {
+        let passwd_vector = Self::generate(file_operator, config);
+        self.vec = passwd_vector.vec;
+        self.nickname = passwd_vector.nickname;
+        self.file_operator = passwd_vector.file_operator;
+    }
+    /// 根据manager直接生成连接好的对象
+    /// 读取manager的config中的配置文件
+    /// 如果配置不存在或者无法读取、解析，那么会直接返回空对象
+    pub fn generate(file_operator: FileOperator, config: &AppConfig) -> Self {
+        // 先从manager读取配置，然后读取文件
+        let path_res = file_operator.read_to_string(&config.passwd_file_path);
+        let content = match path_res {
+            Err(e) => {
+                eprintln!("无法读取或解析本地配置: {}", e);
+                String::new()
+            }
+            Ok(content) => content,
+        };
+        match PasswdVector::create_from_string(&content) {
+            Ok(mut passwd_vector) => {
+                passwd_vector.file_operator = file_operator.clone();
+                passwd_vector
+            }
+            Err(e) => {
+                eprintln!("空符传直接创建新对象: {}", e.as_str());
+                PasswdVector {
+                    vec: Vec::new(),
+                    nickname: Nickname::new(config.fill_char),
+                    file_operator: file_operator.clone(),
+                }
+            }
         }
     }
     /// 获得只读passwd列表
@@ -156,61 +185,69 @@ impl PasswdVector {
     }
     /// 读取config中的配置
     /// 当不存在或者出现问题的时候直接创建新的
-    pub fn read_or_create(config: AppConfig) -> PasswdVector {
-        let read_result = PasswdVector::read(&config);
-        let passwd_vector;
-        if let Err(_) = read_result {
-            // 如果不是文件不存在，那么将原文件创建备份
-            if fs::exists(&config.passwd_file_path).unwrap() {
-                let _ = fs::copy(
-                    &config.passwd_file_path,
-                    format!(
-                        "{}{}{}",
-                        &config.passwd_file_path,
-                        ".bak",
-                        Uuid::new_v4().to_string()
-                    ),
-                );
-            }
-            eprintln!("密码文件不存在或不可读，请检查文件完整性或者文件权限。");
-            passwd_vector = PasswdVector::new(config);
-        } else {
-            passwd_vector = read_result.unwrap();
-        };
-        passwd_vector
-    }
-    pub fn read(config: &AppConfig) -> Result<PasswdVector, Box<dyn std::error::Error>> {
-        // 读取文件
-        let toml_text = fs::read_to_string(config.passwd_file_path.to_string())?;
+    // pub fn read_or_create(config: AppConfig) -> PasswdVector {
+    //     let read_result = PasswdVector::read(&config);
+    //     let passwd_vector;
+    //     if let Err(_) = read_result {
+    //         // 如果不是文件不存在，那么将原文件创建备份
+    //         if fs::exists(&config.passwd_file_path).unwrap() {
+    //             let _ = fs::copy(
+    //                 &config.passwd_file_path,
+    //                 format!(
+    //                     "{}{}{}",
+    //                     &config.passwd_file_path,
+    //                     ".bak",
+    //                     Uuid::new_v4().to_string()
+    //                 ),
+    //             );
+    //         }
+    //         eprintln!("密码文件不存在或不可读，请检查文件完整性或者文件权限。");
+    //         passwd_vector = PasswdVector::new(config);
+    //     } else {
+    //         passwd_vector = read_result.unwrap();
+    //     };
+    //     passwd_vector
+    // }
+    // pub fn read(config: &AppConfig) -> Result<PasswdVector, Box<dyn std::error::Error>> {
+    //     // 读取文件
+    //     let toml_text = fs::read_to_string(config.passwd_file_path.to_string())?;
 
-        // 反序列化为结构体
-        let passwd_vector = toml::from_str(&toml_text)?;
+    //     // 反序列化为结构体
+    //     let passwd_vector = toml::from_str(&toml_text)?;
 
-        Ok(passwd_vector)
-    }
+    //     Ok(passwd_vector)
+    // }
     /// 读取文件内容创建对象
-    pub fn read_from_path(path: &str) -> Result<Self, Error> {
+    pub fn create_from_path(path: &PathBuf) -> Result<Self, CoreError> {
         // 读取文件
         let toml_text = match fs::read_to_string(path) {
             Ok(r) => r,
-            Err(_) => return Err(Error::FilePathIsWrong("无法读取该文件".to_string())),
+            Err(_) => return Err(CoreError::FilePathIsWrong("无法读取该文件".to_string())),
         };
         PasswdVector::create_from_string(&toml_text)
     }
     /// 从字符串中创建对象
-    pub fn create_from_string(data_str: &str) -> Result<Self, Error> {
+    pub fn create_from_string(data_str: &str) -> Result<Self, CoreError> {
         // 反序列化为结构体
         let passwd_vector = match toml::from_str(data_str) {
-            Err(e) => return Err(Error::FileContentNotRight(e.to_string())),
+            Err(e) => return Err(CoreError::FileContentNotRight(e.to_string())),
             Ok(r) => r,
         };
         Ok(passwd_vector)
     }
-    pub fn store(&self) -> Result<(), Box<dyn std::error::Error>> {
+    /// 保存到配置
+    pub fn store(&self, path: &PathBuf) -> Result<(), PasswdError> {
+        eprintln!("保存文件执行中...");
         // 序列化 passwd与nickname 为 TOML 字符串
-        let toml_text = toml::to_string_pretty(self)?;
-        let path = Path::new(&self.config.passwd_file_path);
-
+        let toml_text: String = match toml::to_string_pretty(self) {
+            Ok(t) => t,
+            Err(e) => {
+                return Err(PasswdError::SerializeError(format!(
+                    "序列化失败: {}",
+                    e.to_string()
+                )))
+            }
+        };
         // 自动创建父文件夹
         if let Some(parent) = path.parent() {
             if !parent.exists() {
@@ -222,13 +259,16 @@ impl PasswdVector {
                         );
                         return Ok(());
                     } else {
-                        return Err(Box::new(e));
+                        return Err(PasswdError::FileOperatorError(format!(
+                            "无法创建父目录（只读文件系统或权限不足）：{}，跳过写入。",
+                            parent.display()
+                        )));
                     }
                 }
             }
         }
         // 写入文件
-        if let Err(e) = fs::write(path, toml_text) {
+        if let Err(e) = fs::write(path.clone(), toml_text) {
             if e.kind() == std::io::ErrorKind::PermissionDenied {
                 eprintln!(
                     "无法写入密码文件（只读文件系统或权限不足）：{}，跳过写入。",
@@ -241,20 +281,24 @@ impl PasswdVector {
                     path.display(),
                     e.to_string()
                 );
-                return Err(Box::new(e));
+                return Err(PasswdError::FileOperatorError(format!(
+                    "路径{}错误，无法写入。错误信息：{}",
+                    path.display(),
+                    e.to_string()
+                )));
             }
         }
 
         Ok(())
     }
     /// 校验密码是否正确,若成功返回密码，失败则返回错误
-    pub fn check_secret_right_or_error(&self, user_key: &str) -> Result<String, Error> {
+    pub fn check_secret_right_or_error(&self, user_key: &str) -> Result<String, CoreError> {
         if self.nickname.get_len() != 0 {
             // 检验密钥
             if self.nickname.check_decryption_key(user_key) {
                 return Ok(user_key.to_string());
             } else {
-                return Err(Error::SecretKeyWrong);
+                return Err(CoreError::SecretKeyWrong);
             }
         } else if self.get_passwd_vec_len() != 0 {
             // 将passwd vec中的第一个元素取出校验
@@ -266,21 +310,21 @@ impl PasswdVector {
             {
                 return Ok(user_key.to_string());
             } else {
-                return Err(Error::SecretKeyWrong);
+                return Err(CoreError::SecretKeyWrong);
             }
         } else {
             return Ok(user_key.to_string());
         }
     }
     /// 得到序列化字符串
-    pub fn get_save_string(&self) -> Result<String, Error> {
+    pub fn get_save_string(&self) -> Result<String, CoreError> {
         match toml::to_string_pretty(self) {
             Ok(toml_text) => Ok(toml_text),
-            Err(e) => return Err(Error::FileContentNotRight(e.to_string())),
+            Err(e) => return Err(CoreError::FileContentNotRight(e.to_string())),
         }
     }
     ///另存为
-    pub fn save_to_path(&self, path: &str) -> Result<(), Error> {
+    pub fn save_to_path(&self, path: &str) -> Result<(), CoreError> {
         // 序列化 passwd与nickname 为 TOML 字符串
         let toml_text = self.get_save_string()?;
         let path = Path::new(path);
@@ -294,12 +338,12 @@ impl PasswdVector {
                             "无法创建父目录（只读文件系统或权限不足）：{}，跳过创建。",
                             parent.display()
                         );
-                        return Err(Error::FilePathIsWrong(format!(
+                        return Err(CoreError::FilePathIsWrong(format!(
                             "无法创建文件（只读文件系统或权限不足）：{}，跳过创建。",
                             path.display()
                         )));
                     } else {
-                        return Err(Error::FilePathIsWrong(format!(
+                        return Err(CoreError::FilePathIsWrong(format!(
                             "无法创建文件:{}",
                             path.to_str().unwrap()
                         )));
@@ -314,12 +358,12 @@ impl PasswdVector {
                     "无法写入文件（只读文件系统或权限不足）：{}，跳过写入。",
                     path.display()
                 );
-                return Err(Error::FilePathIsWrong(format!(
+                return Err(CoreError::FilePathIsWrong(format!(
                     "无法写入文件（只读文件系统或权限不足）：{}，跳过写入。",
                     path.display()
                 )));
             } else {
-                return Err(Error::FilePathIsWrong(format!(
+                return Err(CoreError::FilePathIsWrong(format!(
                     "无法写入文件:{}",
                     path.to_str().unwrap()
                 )));
@@ -338,13 +382,23 @@ impl PasswdVector {
         mut other_passwd_vector: PasswdVector,
         local_secret: &str,
         import_secret: &str,
-    ) -> Result<(), Error> {
+        fill_char: char,
+    ) -> Result<(), PasswdError> {
         // 先校验两边的密钥是否都对
-        self.check_secret_right_or_error(local_secret)?;
-        other_passwd_vector.check_secret_right_or_error(import_secret)?;
+        match self.check_secret_right_or_error(local_secret) {
+            Ok(ok) => ok,
+            Err(e) => return Err(PasswdError::CoreError(e)),
+        };
+        match other_passwd_vector.check_secret_right_or_error(import_secret) {
+            Ok(ok) => ok,
+            Err(e) => return Err(PasswdError::CoreError(e)),
+        };
         //再检验是否拥有相同的加密密钥,如果密码不相同，则将导入文件中的所有重新加密
         if local_secret != import_secret {
-            other_passwd_vector.change_encypt_secret(import_secret, local_secret)?;
+            match other_passwd_vector.change_encypt_secret(import_secret, local_secret, fill_char) {
+                Ok(ok) => ok,
+                Err(e) => return Err(e),
+            };
         }
         // 遍历每一个新passwd
         for ele in other_passwd_vector.get_mut_passwds().iter_mut() {
@@ -364,8 +418,7 @@ impl PasswdVector {
             .iter()
             .filter(|p| {
                 !local_points.contains(
-                    &decypt_string(p, local_secret, self.config.fill_char)
-                        .expect("已校验过密码，不会出错"),
+                    &decypt_string(p, local_secret, fill_char).expect("已校验过密码，不会出错"),
                 )
             })
             .collect();
@@ -374,24 +427,37 @@ impl PasswdVector {
         }
         Ok(())
     }
+    // /// 工具方法，帮助执行
+    // fn get_manager_and_do_some<T: FnMut(Arc<Mutex<PasswdManager>>) -> ()>(
+    //     &mut self,
+    //     mut f: T,
+    // ) -> Result<(), PasswdError> {
+    //     f(self.manager.clone());
+    //     Ok(())
+    // }
+    // /// 工具方法，帮助快速获得对象
+    // fn get_manager(&self) -> Arc<Mutex<PasswdManager>> {
+    //     self.manager.clone()
+    // }
     /// 修改加密密钥
     /// 如果有无法更改的passwd，会在Error中进行提示，而不影响后面的passwd修改密钥
     pub fn change_encypt_secret(
         &mut self,
         old_secret: &str,
         new_secret: &str,
-    ) -> Result<(), Error> {
+        fill_char: char,
+    ) -> Result<(), PasswdError> {
         let mut err_message = String::new();
-        // 首先将memory points中的密文全部转换
-        match self.nickname.change_encypt_secret(old_secret, new_secret) {
-            Ok(()) => {}
-            Err(SecretKeyDifferent(message)) => err_message.push_str(&message),
-            Err(_) => panic!("there is not possible error appear."),
-        };
-        // 然后将 passwd vector全部转换
         let mut err_message_2 = String::from("\n密码记忆部分解密失败: ");
-        let fill_char = self.config.fill_char;
-        let _: Vec<()> = self
+        {
+            // 首先将memory points中的密文全部转换
+            match self.nickname.change_encypt_secret(old_secret, new_secret) {
+                Ok(()) => {}
+                Err(CoreError::SecretKeyDifferent(message)) => err_message.push_str(&message),
+                Err(_) => panic!("there is not possible error appear."),
+            };
+        }
+        let v: Vec<_> = self
             .get_mut_passwds()
             .iter_mut()
             .map(|p| -> () {
@@ -415,59 +481,53 @@ impl PasswdVector {
         if err_message.ends_with(",") {
             err_message.pop();
             err_message.push_str(" 无法解密。");
-            Err(Error::SecretKeyDifferent(err_message))
+            Err(PasswdError::CoreError(CoreError::SecretKeyDifferent(
+                err_message,
+            )))
         } else {
             Ok(())
         }
     }
     /// 切换到其他密码记忆集的文件
     /// 需要确保path与content正确对应
-    pub fn _check_passwd_vector_file(&mut self, content: &str, path: &str) -> Result<(), Error> {
+    pub fn _check_passwd_vector_file(
+        &mut self,
+        content: &str,
+        path: &PathBuf,
+        config: &mut AppConfig,
+    ) -> Result<(), PasswdError> {
         // 先从这个路径下读取文件，校验文件是否正确
         let read_passwd_vector = match Self::create_from_string(content) {
             Ok(res) => res,
             Err(_) => {
-                return Err(Error::FilePathIsWrong(
+                return Err(PasswdError::CoreError(CoreError::FilePathIsWrong(
                     "该路径下的文件无法正确解析".to_string(),
-                ));
+                )));
             }
         };
+
         // 持久化一下将要替换的内容，防止有未保存内容
-        let _ = self.store();
-        let _ = self.config.store();
+        let _ = self.store(&config.passwd_file_path);
+        let _ = config.store();
         // 然后更新当前config的passwd-file-path
-        self.config.passwd_file_path = path.to_string();
+        config.set_passwd_file_path(path.to_path_buf());
+        let _ = config.store();
         // 然后替换passwd vector
-        self.vec = read_passwd_vector.vec.clone();
-        self.nickname.names = read_passwd_vector.nickname.names.clone();
-        // 然后保存一下
-        let _ = self.config.store();
+        self.vec = read_passwd_vector.vec;
+        self.nickname.names = read_passwd_vector.nickname.names;
         Ok(())
     }
-    /// 切换到其他密码记忆集的文件
-    /// 不适配其他平台
-    pub fn check_passwd_vector_file(&mut self, path: &str) -> Result<(), Error> {
-        // 先从这个路径下读取文件，校验文件是否正确
-        let read_passwd_vector = match Self::read_from_path(path) {
-            Ok(res) => res,
-            Err(_) => {
-                return Err(Error::FilePathIsWrong(
-                    "该路径下的文件无法正确解析".to_string(),
-                ));
-            }
+    pub fn read_from_path(&self, path: &PathBuf) -> Result<PasswdVector, PasswdError> {
+        let content = match self.file_operator.read_to_string(path) {
+            Ok(c) => c,
+            Err(e) => return Err(PasswdError::FileOperatorError(e.to_string())),
         };
-        // 持久化一下将要替换的内容，防止有未保存内容
-        let _ = self.store();
-        let _ = self.config.store();
-        // 然后更新当前config的passwd-file-path
-        self.config.passwd_file_path = path.to_string();
-        // 然后替换passwd vector
-        self.vec = read_passwd_vector.vec.clone();
-        self.nickname.names = read_passwd_vector.nickname.names.clone();
-        // 然后保存一下
-        let _ = self.config.store();
-        Ok(())
+        match Self::create_from_string(&content) {
+            Ok(res) => Ok(res),
+            Err(e) => Err(PasswdError::CoreError(e)),
+        }
     }
+
     /// 通过uid删除passwd项
     pub fn remove_passwd_by_unique_id(&mut self, unique_id: &str) -> bool {
         let mut remove_index = self.vec.len();
@@ -510,8 +570,17 @@ impl PasswdVector {
             _ => do_other(&mut self.vec, &index_list),
         }
     }
+    /// 根据 uid 获得 passwd
+    pub fn get_passwd_by_uid(&self, uid: &str) -> Option<&Passwd> {
+        for ele in self.vec.iter() {
+            if ele.get_unique_id() == uid {
+                return Some(ele);
+            }
+        }
+        None
+    }
     /// 根据 uid 获得 passwd 的&mut
-    pub fn get_passwd_by_uid(&mut self, uid: &str) -> Option<&mut Passwd> {
+    pub fn get_mut_passwd_by_uid(&mut self, uid: &str) -> Option<&mut Passwd> {
         for ele in self.vec.iter_mut() {
             if ele.get_unique_id() == uid {
                 return Some(ele);
@@ -520,7 +589,7 @@ impl PasswdVector {
         None
     }
     /// 所有所有包含keys中关键词的 passwd
-    pub fn search_all_passwd<'a>(&'a self, keys: &Vec<String>) -> Vec<&'a Passwd> {
+    pub fn search_all_passwd<'b>(&'b self, keys: &'b Vec<String>) -> Vec<&'b Passwd> {
         let mut res: Vec<&Passwd> = Vec::new();
         self.vec
             .iter()
@@ -542,6 +611,49 @@ impl PasswdVector {
         }
         res_vec
     }
+    /// 切换到其他密码记忆集的文件
+    /// 不适配其他平台
+    pub fn check_passwd_vector_file(
+        &mut self,
+        path: &PathBuf,
+        config: &mut AppConfig,
+    ) -> Result<(), PasswdError> {
+        // 持久化一下将要替换的内容，防止有未保存内容
+        let _ = self.store(&config.passwd_file_path);
+        let _ = config.store();
+
+        // 先从这个路径下读取文件，校验文件是否正确
+        // 然后更新当前config的passwd-file-path
+        let read_passwd_vector;
+        config.passwd_file_path = path.to_path_buf();
+        // 然后保存一下
+        let _ = config.store();
+        read_passwd_vector = match self.read_from_path(path) {
+            Ok(res) => res,
+            Err(e) => return Err(e),
+        };
+        // 然后替换passwd vector
+        self.vec = read_passwd_vector.vec;
+        self.nickname.names = read_passwd_vector.nickname.names;
+        Ok(())
+    }
+}
+
+pub enum PasswdError {
+    PasswdManagerRefNone,
+    SerializeError(String),
+    FileOperatorError(String),
+    CoreError(CoreError),
+}
+impl PasswdError {
+    pub fn as_str(&self) -> String {
+        match self {
+            PasswdError::PasswdManagerRefNone => String::from("密码管理对象引用为空"),
+            PasswdError::SerializeError(s) => s.clone(),
+            PasswdError::FileOperatorError(s) => s.clone(),
+            PasswdError::CoreError(core_error) => core_error.as_str().to_string(),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -561,10 +673,5 @@ mod tests {
             AppConfig::default().fill_char,
         );
         dbg!(&passwd);
-        // passwd.save().unwrap();
-        // assert_eq!(Passwd::load().unwrap(), passwd);
-        // // 删除文件还原环境
-        // fs::remove_file(&self.config.passwd_file_path).unwrap();
-        // assert!(!fs::exists(&CONFIG.passwd_file_path).unwrap());
     }
 }

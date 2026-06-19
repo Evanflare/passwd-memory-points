@@ -3,6 +3,7 @@
 use super::list_commands::list_passwds;
 use crate::commands::dto::PasswdSummary;
 use crate::core::passwd::PasswdVector;
+use crate::core::PasswdManager;
 use crate::error::Error;
 use std::sync::Mutex;
 use tauri::State;
@@ -12,14 +13,14 @@ use tauri::State;
 #[tauri::command(rename_all = "snake_case")]
 pub fn search_passwds(
     key_word: String,
-    state: State<'_, Mutex<PasswdVector>>,
+    state: State<'_, Mutex<PasswdManager>>,
 ) -> Result<Vec<PasswdSummary>, Error> {
     if key_word.len() == 0 {
         return list_passwds(state);
     }
-    let passwd_vector = state.lock().unwrap();
+    let manager = state.lock().unwrap();
     let filters = key_word.split_whitespace().map(|s| s.to_string()).collect();
-    let matches = passwd_vector.search_all_passwd(&filters);
+    let matches = manager.passwds.search_all_passwd(&filters);
     let summaries = matches
         .into_iter()
         .map(|p| PasswdSummary {

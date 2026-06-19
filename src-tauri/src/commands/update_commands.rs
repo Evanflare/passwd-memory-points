@@ -1,10 +1,13 @@
 //! 所有更新已有数据的命令
 
-use crate::core::passwd::*;
+use crate::core::PasswdManager;
 use crate::error::Error;
+use std::fs;
+use std::path::PathBuf;
+use std::str::FromStr;
 use std::sync::Mutex;
-use std::{fs, io::Read};
-use tauri::{AppHandle, State};
+use tauri::State;
+#[cfg(target_os = "android")]
 use tauri_plugin_android_fs::{AndroidFsExt, FileAccessMode, FileUri};
 /// 通过这个命令uid来决定更新的对象，传入更新的元素
 #[tauri::command(rename_all = "snake_case")]
@@ -14,12 +17,14 @@ pub fn update_passwd(
     descript: Option<&str>,
     plaintext: Option<&str>,
     user_key: &str,
-    state: State<'_, Mutex<PasswdVector>>,
+    state: State<'_, Mutex<PasswdManager>>,
 ) -> Result<(), Error> {
     // 先从uid拿到passwd
-    let mut passwd_vector = state.lock().unwrap();
-    let passwd = match passwd_vector.get_passwd_by_uid(uid) {
-        Some(get_passwd_by_uid) => get_passwd_by_uid,
+    let mut manager = state.lock().unwrap();
+    let store_path = &manager.config.passwd_file_path.clone();
+    let passwds = &mut manager.passwds;
+    let passwd = match passwds.get_mut_passwd_by_uid(uid) {
+        Some(passwd) => passwd,
         None => {
             return Err(Error::NotFoundItem(format!(
                 "uid：{uid}，找不到唯一的passwd项",
@@ -29,7 +34,7 @@ pub fn update_passwd(
 
     match passwd.update(name, descript, plaintext, user_key) {
         Ok(_) => {
-            let _ = passwd_vector.store();
+            let _ = passwds.store(store_path);
             Ok(())
         }
         Err(_) => Err(Error::SecretKeyError("密钥不正确".to_string())),
@@ -41,28 +46,29 @@ pub fn update_passwd(
 pub fn change_secret_key(
     old_secret: &str,
     new_secret: &str,
-    state: State<'_, Mutex<PasswdVector>>,
+    state: State<'_, Mutex<PasswdManager>>,
 ) -> Result<(), Error> {
-    let mut passwd_vector = state.lock().unwrap();
-    match passwd_vector.change_encypt_secret(old_secret, new_secret) {
+    let mut manager = state.lock().unwrap();
+    let fill_char = manager.config.fill_char;
+    let passswd_file_path = manager.config.passwd_file_path.clone();
+    match manager
+        .passwds
+        .change_encypt_secret(old_secret, new_secret, fill_char)
+    {
         Ok(()) => {
-            let _ = passwd_vector.store();
+            let _ = manager.passwds.store(&passswd_file_path);
             Ok(())
         }
-        Err(e) => Err(Error::SomeElementFail(e.as_str().to_string())),
+        Err(e) => Err(Error::SomeElementFail(e.as_str())),
     }
 }
 
 /// 更换文件
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn change_file(
-    file_path: &str,
-    state: State<'_, Mutex<PasswdVector>>,
-    app: AppHandle,
-) -> Result<(), Error> {
-    let mut passwd_vector = state.lock().unwrap();
-    let content = if file_path.starts_with("content://") {
+pub fn change_file(file_path: &str, state: State<'_, Mutex<PasswdManager>>) -> Result<(), Error> {
+    let mut manager = state.lock().unwrap();
+    let content = if file_path.starts_with("content") {
         // Android: content URI
         #[cfg(target_os = "android")]
         {
@@ -99,8 +105,15 @@ pub fn change_file(
             Err(message) => return Err(Error::FileOperationError(message.to_string())),
         }
     };
-
-    passwd_vector
-        ._check_passwd_vector_file(&content, &file_path)
-        .map_err(|e| Error::NotFoundItem(format!("文件解析失败: {}", e.as_str())))
+    let file_path = match PathBuf::from_str(file_path) {
+        Ok(p) => p,
+        Err(e) => return Err(Error::FileOperationError(format!("解析路径失败: {}", e))),
+    };
+    let mut config = manager.config.clone();
+    let _ = manager
+        .passwds
+        ._check_passwd_vector_file(&content, &file_path, &mut config);
+    // 将变化后的config覆盖到当前
+    manager.config = config;
+    Ok(())
 }

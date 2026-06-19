@@ -1,12 +1,13 @@
+use crate::core::PasswdManager;
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-use crate::status::passwd_vector_status::get_passwd_vector_by_apphandle;
 use std::sync::Mutex;
-use tauri::generate_context;
-use tauri::Manager;
+use tauri::{generate_context, Manager};
+
 /// 模块定义
 pub mod commands;
 pub mod core;
 pub mod error;
+pub mod platform;
 pub mod status;
 pub mod utils;
 /// 重导出
@@ -15,13 +16,16 @@ pub use commands::*;
 const APP_NAME: &str = "passwd-memory-points";
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let builder = tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
-        .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_android_fs::init())
+        .plugin(tauri_plugin_dialog::init());
+
+    #[cfg(target_os = "android")]
+    builder.plugin(tauri_plugin_android_fs::init());
+
+    builder
         .setup(|app| {
-            let passwd_vector = get_passwd_vector_by_apphandle(app);
-            let state = Mutex::new(passwd_vector);
+            let state = Mutex::new(PasswdManager::new(app.handle().clone()));
             app.manage(state);
             Ok(())
         })

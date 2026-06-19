@@ -2,7 +2,7 @@
 //!
 
 use crate::core::crypt::*;
-use crate::core::error::Error;
+use crate::core::error::CoreError;
 use rand::seq::SliceRandom;
 use serde::{Deserialize, Serialize};
 
@@ -42,7 +42,7 @@ impl Nickname {
         &mut self,
         old_secret: &str,
         new_secret: &str,
-    ) -> Result<(), Error> {
+    ) -> Result<(), CoreError> {
         let mut err_message: String = String::from("记忆点解密部分失败: ");
         let fill_char = self.default_fill_char;
         let mut fail_count = 0;
@@ -75,7 +75,7 @@ impl Nickname {
         if fail_count > 0 {
             err_message.push_str(&fail_count.to_string());
             err_message.push_str(" 个记忆点解密失败。");
-            Err(Error::SecretKeyDifferent(err_message))
+            Err(CoreError::SecretKeyDifferent(err_message))
         } else {
             Ok(())
         }
@@ -156,7 +156,7 @@ impl Nickname {
         }
     }
     /// 更新nnickname：先校验密钥是否正确，解密是否成功，如果不成功则不修改对象
-    pub fn update_nickname(&mut self, name: Option<&str>, user_key: &str) -> Result<(), Error> {
+    pub fn update_nickname(&mut self, name: Option<&str>, user_key: &str) -> Result<(), CoreError> {
         // 先校验密钥是否正确，解密是否成功，如果不成功则不修改对象
         match self.decrypted_nickname(user_key) {
             Ok(_) => {
@@ -166,7 +166,7 @@ impl Nickname {
                 }
                 Ok(())
             }
-            Err(_) => Err(Error::SecretKeyWrong),
+            Err(_) => Err(CoreError::SecretKeyWrong),
         }
     }
 }
