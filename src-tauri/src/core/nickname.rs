@@ -90,6 +90,18 @@ impl Nickname {
     }
     /// 新增nickname
     pub fn add_nickname(&mut self, nick: &str, user_key: &str) {
+        // 首先校验是否已有相同元素，如果有直接返回
+        for ele in self.names.iter() {
+            // 解密
+            match decypt_string(ele, user_key, self.default_fill_char) {
+                Ok(s) if s == nick => {
+                    return ();
+                }
+                _ => {
+                    eprintln!("{} 与 nickname {} 不相等", ele, nick);
+                }
+            }
+        }
         let e = encrypt(&nick.as_bytes(), user_key, self.default_fill_char);
         let s = format!("{}", hex::encode(&e));
         self.names.push(s);
@@ -130,7 +142,7 @@ impl Nickname {
         Ok(res)
     }
 
-    /// 删除同名nickname元素
+    /// 删除第一个匹配的nickname元素
     /// 当找不到同名元素、或者密码错误的时候会返回false
     pub fn del_nickname(&mut self, del_name: &str, key: &str) -> bool {
         let mut del_index = self.names.len();
