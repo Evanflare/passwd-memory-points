@@ -66,35 +66,32 @@ impl AppConfig {
     //     self.manager = manager;
     // }
     pub fn generate(file_operator: FileOperator) -> Self {
-        let passwd_path = file_operator
+        //首先读取默认的配置文件，并根据默认配置文件中的二级配置文件路径去读取新的配置
+        let default_passwd_path = file_operator
             .get_data_dir()
             .expect("无法获得data_dir")
             .join(Path::new(APP_NAME))
             .join(PASSWD_FILE_NAME);
-        let profile_path = file_operator
+        let default_profile_path = file_operator
             .get_data_dir()
             .expect("无法获得data_dir")
             .join(Path::new(APP_NAME))
             .join(PROFILE_NAME)
             .to_path_buf();
+        // 校验默认配置文件是否存在，若不存在，则直接返回默认对象
+        match fs::exists(default_profile_path.clone()) {
+            Ok(_) => match Self::read_profile(&file_operator, &default_profile_path) {
+                Ok(config) => return config,
+                Err(_) => {}
+            },
+            Err(_) => {}
+        }
         Self {
             file_operator: file_operator,
             fill_char: DEFAULT_FILL_CHAR,
-            passwd_file_path: passwd_path,
-            profile_path: profile_path,
+            passwd_file_path: default_passwd_path,
+            profile_path: default_profile_path,
         }
-
-        // // 获取baseDir
-        // if cfg!(target_os = "android") {
-        //     let base = PathBuf::from("/data/user/0/com.evanflare.passwd-memory-points/");
-        //     return AppConfig::read_or_create_from_basedir(&base).expect("无法读取配置路径");
-        // }
-        // let app_data_dir = data_dir();
-        // if let Some(app_data_dir) = app_data_dir {
-        //     AppConfig::read_or_create_from_basedir(&app_data_dir).expect("无法读取配置路径")
-        // } else {
-        //     panic!("无法获取正确的AppData目录");
-        // }
     }
     pub fn set_passwd_file_path(&mut self, path: PathBuf) {
         self.passwd_file_path = path;
@@ -144,9 +141,13 @@ impl AppConfig {
     //     }
     // }
     /// 程序运行时读取配置文件。
-    pub fn read_profile(&self, profile_path: &PathBuf) -> Result<AppConfig, ConfigError> {
+    /// 有循环读取的风险
+    pub fn read_profile(
+        file_operator: &FileOperator,
+        profile_path: &PathBuf,
+    ) -> Result<AppConfig, ConfigError> {
         // 读取文件
-        let toml_text = match self.file_operator.read_to_string(profile_path) {
+        let toml_text = match file_operator.read_to_string(profile_path) {
             Ok(c) => c,
             Err(e) => return Err(ConfigError::SerializeError(e.to_string())),
         };
@@ -155,7 +156,15 @@ impl AppConfig {
             Ok(c) => c,
             Err(e) => return Err(ConfigError::SerializeError(e.to_string())),
         };
-        return Ok(config);
+        // 检查配置文件中配置的路径是否为自身，如果不是则继续递归调用
+        if config.profile_path != *profile_path {
+            match Self::read_profile(file_operator, &config.profile_path) {
+                Ok(config) => Ok(config),
+                Err(e) => Err(e),
+            }
+        } else {
+            Ok(config)
+        }
     }
     /// 保存当前配置到配置的路径下
     pub fn store(&self) -> Result<(), ConfigError> {

@@ -457,7 +457,7 @@ impl PasswdVector {
                 Err(_) => panic!("there is not possible error appear."),
             };
         }
-        let v: Vec<_> = self
+        let _ = self
             .get_mut_passwds()
             .iter_mut()
             .map(|p| -> () {
@@ -473,7 +473,7 @@ impl PasswdVector {
                     }
                 };
             })
-            .collect();
+            .count();
         // 判断是否出现错误
         if err_message_2.ends_with(",") {
             err_message.push_str(&err_message_2);

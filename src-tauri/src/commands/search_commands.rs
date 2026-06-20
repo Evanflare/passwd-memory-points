@@ -2,7 +2,6 @@
 
 use super::list_commands::list_passwds;
 use crate::commands::dto::PasswdSummary;
-use crate::core::passwd::PasswdVector;
 use crate::core::PasswdManager;
 use crate::error::Error;
 use std::sync::Mutex;
