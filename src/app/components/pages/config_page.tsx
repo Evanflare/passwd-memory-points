@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { changeFile, getConfig } from "../../tauri_core/command_frontend";
+import { changeFile, extern_file_include, getConfig } from "../../tauri_core/command_frontend";
 import {
     Dialog,
     DialogContent,
@@ -18,8 +18,6 @@ import { invoke } from "@tauri-apps/api/core";
 import ChangeSecretDialog from "../dialog/change_secret.dialog";
 import { ScrollArea } from "../ui/scroll-area";
 import InternalFilePicker, { InternalFile } from "../../components/ui/InternalFilePicker";
-import { getAppDataDir } from "../../tauri_core/command_frontend"; // 假设你按之前的方式封装了获取路径的函数
-import { readFile, writeFile } from "@tauri-apps/plugin-fs";
 
 export default function ConfigPage() {
     const [passwdFilePath, setPasswdFilePath] = useState("");
@@ -89,22 +87,18 @@ export default function ConfigPage() {
             if (!selected) return;
 
             const uri = Array.isArray(selected) ? selected[0] : selected;
+            console.log("读取到选择", uri)
             if (!uri) return;
 
             // 2. 读取外部文件内容
-            const fileBytes = await readFile(uri);
-
-            // 3. 生成文件名并复制到内部目录
-            const fileName = uri.split('/').pop() || 'imported_passwd_file';
-            const dest = `${await getAppDataDir()}${fileName}`;
-            await writeFile(dest, fileBytes);
-
+            let dest = await extern_file_include(uri);
+            console.log("内部文件的路径为: ", dest)
             // 4. 切换到内部文件
             await changeFile(dest);
             await message("外部文件已导入并切换成功！", { title: "成功", kind: "info" });
             await refreshConfig();
         } catch (error) {
-            await message(`外部切换失败：${(error as Error).message}`, { title: "错误", kind: "error" });
+            await message(`外部切换失败：${(error as Error).message} ${error}`, { title: "错误", kind: "error" });
         }
     };
 

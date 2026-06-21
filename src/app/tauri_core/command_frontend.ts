@@ -125,3 +125,8 @@ export async function getAppDataDir(): Promise<string> {
 export async function get_app_config_dir_files(): Promise<InternalFile[]> {
     return await invoke<InternalFile[]>('get_app_config_dir_files');
 }
+
+
+export async function extern_file_include(extern_file_path: string): Promise<string> {
+    return await invoke<string>('extern_file_include', { extern_file_path });
+}

@@ -36,6 +36,7 @@ pub fn run() {
             get_memory_points,
             plaintext_points,
             get_app_config_dir_files,
+            extern_file_include,
             change_secret_key,
             change_file,
             export_string,

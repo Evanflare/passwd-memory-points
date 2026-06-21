@@ -2,6 +2,8 @@
 //!
 
 use std::fs;
+use std::path::PathBuf;
+use std::str::FromStr;
 use std::sync::Mutex;
 use tauri::{AppHandle, State};
 #[cfg(target_os = "android")]
@@ -10,6 +12,7 @@ use tauri_plugin_android_fs::{AndroidFsExt, FileAccessMode, FileUri};
 use crate::core::error::CoreError::*;
 use crate::core::{PasswdError, PasswdManager, PasswdVector};
 use crate::error::Error;
+use crate::get_app_data_dir;
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn export_string(state: State<'_, Mutex<PasswdManager>>) -> Result<String, Error> {
@@ -93,5 +96,47 @@ pub fn import_from_file(
             Err(Error::SecretKeyError("密钥错误".to_string()))
         }
         _ => Err(Error::FileOperationError("无法导入文件".to_string())),
+    }
+}
+/// 将外部文件直接导入到本地配置文件夹
+/// 并返回内部配置的路径
+#[tauri::command(rename_all = "snake_case")]
+pub fn extern_file_include(
+    extern_file_path: &str,
+    app_handle: AppHandle,
+    state: State<'_, Mutex<PasswdManager>>,
+) -> Result<String, String> {
+    eprintln!("进入命令extern_file_path, 参数: {}", extern_file_path);
+    match PathBuf::from_str(extern_file_path) {
+        Ok(path) => {
+            // 获取默认配置文件
+            let dir = get_app_data_dir(app_handle).unwrap();
+            eprintln!("解析成功路径: {}", path.display());
+            let manager = state.lock().unwrap();
+            let file_operator = manager.file_operator.clone();
+            let content = match file_operator.read_to_string(&path) {
+                Ok(content) => content,
+                Err(e) => return Err(format!("读取文件失败：{}", e.to_string())),
+            };
+            eprintln!("成功读取文件内容：{:10}", content);
+            // 构建新路径，并判断路径是否已被占用
+            let mut new_path = PathBuf::from_str(&dir).unwrap();
+            new_path.push(path.file_name().unwrap());
+            if new_path.exists() {
+                use uuid::Uuid;
+                new_path.pop();
+                new_path.push(format!(
+                    "{}{}",
+                    Uuid::new_v4(),
+                    path.file_name().unwrap().display()
+                ));
+            }
+            let _ = file_operator.write(&content, &new_path);
+            Ok(new_path.display().to_string())
+        }
+        Err(_) => {
+            eprintln!("路径无法解析: {}", extern_file_path);
+            Err(format!("路径无法解析：{}", extern_file_path))
+        }
     }
 }
