@@ -6,7 +6,7 @@ use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::Mutex;
-use tauri::State;
+use tauri::{AppHandle, State};
 #[cfg(target_os = "android")]
 use tauri_plugin_android_fs::{AndroidFsExt, FileAccessMode, FileUri};
 /// 通过这个命令uid来决定更新的对象，传入更新的元素
@@ -66,12 +66,18 @@ pub fn change_secret_key(
 /// 更换文件
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn change_file(file_path: &str, state: State<'_, Mutex<PasswdManager>>) -> Result<(), Error> {
+pub fn change_file(
+    file_path: &str,
+    state: State<'_, Mutex<PasswdManager>>,
+    app: AppHandle,
+) -> Result<(), Error> {
     let mut manager = state.lock().unwrap();
     let content = if file_path.starts_with("content") {
         // Android: content URI
         #[cfg(target_os = "android")]
         {
+            use std::io::Read;
+
             let android_fs = app.android_fs();
             let mut file = match android_fs
                 .open_file(&FileUri::from_uri(file_path), FileAccessMode::Read)

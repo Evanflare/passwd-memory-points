@@ -3,8 +3,6 @@ mod windows;
 
 #[cfg(target_os = "android")]
 mod android;
-#[cfg(target_os = "android")]
-pub use android::PlatformImpl;
 
 use tauri::Manager;
 
@@ -62,10 +60,13 @@ impl FileOperator {
         }
     }
     #[cfg(target_os = "android")]
-    pub fn read_to_string(&self, file_uri: &str) -> Result<String, ErrorKind> {
-        match AndroidFsExt::android_fs(self.app).read_to_string(&FileUri::from_uri(file_uri)) {
+    pub fn read_to_string(&self, file_uri: &PathBuf) -> Result<String, ErrorKind> {
+        use tauri_plugin_android_fs::{AndroidFsExt, FileUri};
+        match AndroidFsExt::android_fs(&self.app.clone().unwrap())
+            .read_to_string(&&FileUri::from_path(file_uri))
+        {
             Ok(content) => Ok(content),
-            Err(e) => Err(ErrorKind::NotFound),
+            Err(_) => Err(ErrorKind::NotFound),
         }
     }
     #[cfg(target_os = "windows")]
@@ -78,11 +79,12 @@ impl FileOperator {
     }
     #[cfg(target_os = "android")]
     pub fn write(&self, content: &str, file_uri: &PathBuf) -> Result<(), ErrorKind> {
-        let write_result =
-            AndroidFsExt::android_fs(self.app).write(&FileUri::from_uri(file_uri), content);
+        use tauri_plugin_android_fs::{AndroidFsExt, FileUri};
+        let write_result = AndroidFsExt::android_fs(&self.app.clone().unwrap())
+            .write(&FileUri::from_path(file_uri), content);
         match write_result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e.kind()),
+            Err(_) => Err(ErrorKind::NotFound),
         }
     }
 }
