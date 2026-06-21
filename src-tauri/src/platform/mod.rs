@@ -1,5 +1,7 @@
 #[cfg(target_os = "windows")]
 mod windows;
+#[cfg(target_os = "windows")]
+use std::{fs, path::Path};
 
 #[cfg(target_os = "android")]
 mod android;
@@ -15,8 +17,8 @@ use tauri::Manager;
 //     PlatformImpl::action(action)
 // }
 
-use std::path::{Path, PathBuf};
-use std::{fs, io::ErrorKind};
+use std::io::ErrorKind;
+use std::path::PathBuf;
 use tauri::AppHandle;
 
 #[derive(Clone)]
