@@ -63,12 +63,41 @@ impl FileOperator {
     }
     #[cfg(target_os = "android")]
     pub fn read_to_string(&self, file_uri: &PathBuf) -> Result<String, ErrorKind> {
-        use tauri_plugin_android_fs::{AndroidFsExt, FileUri};
-        match AndroidFsExt::android_fs(&self.app.clone().unwrap())
-            .read_to_string(&&FileUri::from_path(file_uri))
-        {
-            Ok(content) => Ok(content),
-            Err(_) => Err(ErrorKind::NotFound),
+        if !file_uri.display().to_string().starts_with("content") {
+            use tauri_plugin_android_fs::{AndroidFsExt, FileUri};
+            match AndroidFsExt::android_fs(&self.app.clone().unwrap())
+                .read_to_string(&&FileUri::from_path(file_uri))
+            {
+                Ok(content) => Ok(content),
+                Err(e) => {
+                    eprintln!("无法读取文件: {}", file_uri.display());
+                    eprintln!("错误原因: {}", e);
+                    Err(ErrorKind::NotFound)
+                }
+            }
+        } else {
+            use std::io::Read;
+            use tauri_plugin_android_fs::{AndroidFsExt, FileAccessMode, FileUri};
+            let binding = self.app.clone().unwrap();
+            let android_fs = binding.android_fs();
+            let mut file = match android_fs
+                .open_file(
+                    &&FileUri::from_uri(file_uri.display().to_string()),
+                    FileAccessMode::Read,
+                )
+                .map_err(|e| format!("无法打开文件: {}", e))
+            {
+                Ok(file) => file,
+                Err(_) => return Err(ErrorKind::NotFound),
+            };
+            let mut c = String::new();
+            match file
+                .read_to_string(&mut c)
+                .map_err(|e| format!("读取文件失败: {}", e))
+            {
+                Ok(_) => Ok(c),
+                Err(_) => return Err(ErrorKind::Other),
+            }
         }
     }
     #[cfg(target_os = "windows")]
@@ -82,8 +111,21 @@ impl FileOperator {
     #[cfg(target_os = "android")]
     pub fn write(&self, content: &str, file_uri: &PathBuf) -> Result<(), ErrorKind> {
         use tauri_plugin_android_fs::{AndroidFsExt, FileUri};
-        let write_result = AndroidFsExt::android_fs(&self.app.clone().unwrap())
-            .write(&FileUri::from_path(file_uri), content);
+        let write_result;
+        if file_uri.display().to_string().starts_with("content") {
+            write_result = match AndroidFsExt::android_fs(&self.app.clone().unwrap())
+                .write(&FileUri::from_uri(file_uri.display().to_string()), content)
+            {
+                Ok(_) => Ok(()),
+                Err(_) => Err(()),
+            };
+        } else {
+            use std::fs;
+            write_result = match fs::write(file_uri, content) {
+                Ok(_) => Ok(()),
+                Err(_) => Err(()),
+            };
+        }
         match write_result {
             Ok(_) => Ok(()),
             Err(_) => Err(ErrorKind::NotFound),
