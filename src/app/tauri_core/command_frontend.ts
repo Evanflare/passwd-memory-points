@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { InternalFile } from "../components/ui/InternalFilePicker";
 
 
 export type PasswdSummary = {
@@ -115,4 +116,12 @@ export async function changeFile(filePath: string) {
     return await invoke("change_file", {
         file_path: filePath
     })
+}
+export async function getAppDataDir(): Promise<string> {
+    return await invoke<string>('get_app_data_dir');
+}
+
+
+export async function get_app_config_dir_files(): Promise<InternalFile[]> {
+    return await invoke<InternalFile[]>('get_app_config_dir_files');
 }

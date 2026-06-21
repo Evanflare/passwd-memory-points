@@ -35,6 +35,7 @@ pub fn run() {
             get_passwd,
             get_memory_points,
             plaintext_points,
+            get_app_config_dir_files,
             change_secret_key,
             change_file,
             export_string,
@@ -43,6 +44,7 @@ pub fn run() {
             get_config,
             add_passwd,
             import_from_file,
+            get_app_data_dir,
             update_passwd,
             del_memory_point,
             del_passwd_by_uid
