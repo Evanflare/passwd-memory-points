@@ -86,12 +86,14 @@ impl AppConfig {
             },
             Err(_) => {}
         }
-        Self {
+        let default_config = Self {
             file_operator: file_operator,
             fill_char: DEFAULT_FILL_CHAR,
             passwd_file_path: default_passwd_path,
             profile_path: default_profile_path,
-        }
+        };
+        let _ = default_config.store();
+        default_config
     }
     pub fn set_passwd_file_path(&mut self, path: PathBuf) {
         self.passwd_file_path = path;

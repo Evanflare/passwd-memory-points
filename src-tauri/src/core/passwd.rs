@@ -164,11 +164,13 @@ impl PasswdVector {
             }
             Err(e) => {
                 eprintln!("空符传直接创建新对象: {}", e.as_str());
-                PasswdVector {
+                let res = PasswdVector {
                     vec: Vec::new(),
                     nickname: Nickname::new(config.fill_char),
                     file_operator: file_operator.clone(),
-                }
+                };
+                let _ = res.store(&config.passwd_file_path);
+                res
             }
         }
     }
