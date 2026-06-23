@@ -4,7 +4,7 @@
 <div align="center">
   <!-- todo -->
 </div>
-<p align="center"><a href="https://github.com/Evanflare/passwd-memory-points/"><img src="images\passwd-memory-points.png" alt="passwd memoty points Screenshot"/></a></p>
+<p align="center"><a href="https://github.com/Evanflare/passwd-memory-points/"><img src="images/passwd-memory-points.png" alt="passwd memoty points Screenshot"/></a></p>
 
 # 密码记忆点管理
 
