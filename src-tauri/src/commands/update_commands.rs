@@ -68,7 +68,7 @@ pub fn change_secret_key(
 pub fn change_file(
     file_path: &str,
     state: State<'_, Mutex<PasswdManager>>,
-    app: AppHandle,
+    _app: AppHandle,
 ) -> Result<(), Error> {
     let mut manager = state.lock().unwrap();
     let content = if file_path.starts_with("content") {
@@ -77,7 +77,7 @@ pub fn change_file(
         {
             use std::io::Read;
 
-            let android_fs = app.android_fs();
+            let android_fs = _app.android_fs();
             let mut file = match android_fs
                 .open_file(&FileUri::from_uri(file_path), FileAccessMode::Read)
                 .map_err(|e| Error::FileOperationError(format!("无法打开文件: {}", e)))

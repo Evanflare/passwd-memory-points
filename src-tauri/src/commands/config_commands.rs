@@ -32,7 +32,7 @@ pub fn import_from_file(
     local_secret: &str,
     import_secret: &str,
     state: State<'_, Mutex<PasswdManager>>,
-    app: AppHandle,
+    _app: AppHandle,
 ) -> Result<(), Error> {
     // 获得passwd vector
     let mut manager = state.lock().unwrap();
@@ -43,7 +43,7 @@ pub fn import_from_file(
             // 在 Android 上，'path' 是一个 content:// URI
 
             use std::io::Read;
-            let android_fs = app.android_fs();
+            let android_fs = _app.android_fs();
             let mut file = match android_fs
                 .open_file(&FileUri::from_uri(path), FileAccessMode::Read)
                 .map_err(|e| format!("无法打开文件: {}", e))

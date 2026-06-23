@@ -14,7 +14,7 @@ interface Props {
 
 export default function InternalFilePicker({
     onSelect,
-    extensions,
+    //extensions,
     emptyMessage = '暂无可选文件，请先导入',
 }: Props) {
     const [files, setFiles] = useState<InternalFile[]>([]);
