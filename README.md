@@ -92,7 +92,7 @@ cs选手 18 4plus 大 hub
 
 支持导入导出密文文件，方便进行备份和同步
 
-![alt text](images/images/image-7.png)
+![alt text](images/image-7.png)
 
 ### 7. 修改加密密钥
 
