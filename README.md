@@ -1,7 +1,58 @@
-# Tauri + React + Typescript
+# 密码记忆点管理
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+密码记忆点管理：不直接存储密码，而是存储组成密码记忆的密码点。通过每个人独特的意向记忆来生成、存储、查询密码记忆。
 
-## Recommended IDE Setup
+## 下载安装
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+支持Windows与Android平台，安装包发布在 [github release页](https://github.com/Evanflare/passwd-memory-points/releases)
+或者 gitee 同名仓库的release页中。请前往下载。
+
+## 特点
+
+为什么要使用密码记忆点管理我们的密码？
+
+1. 不可解密
+2. 快速查询并回忆密码
+3. 能管理大量密码
+4. 快速密码随机生成并避免重复
+5. 安全备份可随意导入导出
+6. 一键更换加密密钥
+7. windows+android双端管理
+
+## 快速开始
+
+1. 我们需要将一个密码转换成密码记忆，从密码记忆中提取出密码记忆点。
+
+例如：
+  这里有一个github账号的密码`s1mple12345678Hub*`
+  转换成密码记忆：我最喜欢的cs选手id 1到8 大写 hub #
+
+> 密码记忆就是我们记忆密码的方法
+
+2. 将密码记忆映射拆分成记忆点
+
+接上个例子：
+  有一个密码记忆：我最喜欢的cs选手id 1到8 大写 hub #
+  转换成独特密码记忆点：cs选手 18 大 hub 4plus
+  - cs选手 ：S1mple
+  - 18 ： 12345678
+  - 大 ：后面的第一个字母大写
+  - hub ：hub
+  - 4plus ：#
+
+3. 将密码记忆点加密存储
+
+将密码记忆点与真实密码的映射关系用物理介质记录下来，防止后期忘记记忆点的含义。
+将记忆点添加到软件中并设计简单的加密密码例如：123
+
+4. 添加密码记忆
+
+添加后的记忆点在添加密码记忆的页面可选，或者自行输入字符串。
+
+5. 查询与修改
+
+6. 导入导出
+
+7. 修改加密密钥
+
+
