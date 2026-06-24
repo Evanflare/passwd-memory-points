@@ -1,4 +1,12 @@
-<p align="center"><img src="images/logo.png" alt="passwd-memory-points logo"/></a></p>
+<p align="center">
+  <a href="https://github.com/Evanflare/passwd-memory-points/">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="images/Logo_dark.gif">
+      <img alt="Animated Memoria Logo" src="images/Logo_light.gif">
+    </picture>
+  </a>
+</p>
+
 <h3 align="center">密码记忆加密管理, 密码生成，导入导出</h3>
 <br>
 <div align="center">
