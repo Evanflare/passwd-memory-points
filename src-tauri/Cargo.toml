@@ -1,7 +1,7 @@
 [package]
-name = "passwd-memory-points-tauri"
+name = "memoria"
 version = "1.0.2"
-description = "password memory points manager tool."
+description = "a password memory points manager tool."
 authors = ["Evanflare"]
 edition = "2021"
 
