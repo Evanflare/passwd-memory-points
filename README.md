@@ -1,3 +1,19 @@
+<p align="center">
+  <a href="https://github.com/Evanflare/passwd-memory-points/">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="images/Logo_dark.gif">
+      <img alt="Animated Memoria Logo" src="images/Logo_light.gif">
+    </picture>
+  </a>
+</p>
+
+<h3 align="center">密码记忆加密管理, 密码生成，导入导出</h3>
+<br>
+<div align="center">
+  <!-- todo -->
+</div>
+<p align="center"><a href="https://github.com/Evanflare/passwd-memory-points/"><img src="images/passwd-memory-points.png" alt="passwd memoty points Screenshot"/></a></p>
+
 # 密码记忆点管理
 
 密码记忆点管理：不直接存储密码，而是存储组成密码记忆的密码点。通过每个人独特的意向记忆来生成、存储、查询密码记忆。
@@ -56,38 +72,38 @@ cs选手 18 4plus 大 hub
 将密码记忆点与真实密码的映射关系用物理介质记录下来，防止后期忘记记忆点的含义。
 将记忆点添加到软件中并设计简单的加密密码例如：123
 
-![alt text](image.png)
+![alt text](images/image.png)
 
 添加成功后会自动加密保存。
 
-![alt text](image-2.png)
+![alt text](images/image-2.png)
 
 ### 4. 添加密码记忆
 
 添加后的记忆点在添加密码记忆的页面可选，或者自行输入字符串。
 
-![alt text](image-3.png)
+![alt text](images/image-3.png)
 
 ### 5. 查询与修改
 
-![alt text](image-4.png)
+![alt text](images/image-4.png)
 
 点击解密输入正确密钥后会显示密码记忆
 
-![alt text](image-5.png)
+![alt text](images/image-5.png)
 
 对于记忆点也需要进行解密才能查看到明文
 
-![alt text](image-6.png)
+![alt text](images/image-6.png)
 
 ### 6. 导入导出
 
 支持导入导出密文文件，方便进行备份和同步
 
-![alt text](image-7.png)
+![alt text](images/image-7.png)
 
 ### 7. 修改加密密钥
 
 提供修改加密密钥功能，可快速更改加密密钥
 
-![alt text](image-8.png)
+![alt text](images/image-8.png)
