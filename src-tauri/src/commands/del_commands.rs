@@ -46,3 +46,28 @@ pub fn del_passwd_by_uid(
         return Err(Error::NotFoundItem("无法找到对象".to_string()));
     }
 }
+
+/// 用于删除内部文件
+#[tauri::command(rename_all = "snake_case")]
+pub fn del_inner_file(
+    del_file_name: &str,
+    secret_key: &str,
+    state: State<'_, Mutex<PasswdManager>>,
+) -> Result<(), Error> {
+    // 得到passwdvector
+    let manager = state.lock().unwrap();
+    // 先校验密码是否正确
+    match check_secret_right_or_error(&manager.passwds, secret_key) {
+        Ok(_) => {}
+        Err(_) => return Err(Error::SecretKeyError("密码不正确".to_string())),
+    }
+    match manager.file_operator.del_inner_file(del_file_name) {
+        Ok(_) => {
+            let _ = manager.passwds.store(&manager.config.passwd_file_path);
+            return Ok(());
+        }
+        Err(_) => {
+            return Err(Error::NotFoundItem("无法找到文件".to_string()));
+        }
+    }
+}
