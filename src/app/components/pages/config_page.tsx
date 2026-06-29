@@ -139,7 +139,7 @@ export default function ConfigPage() {
                 <p className="text-muted-foreground mb-6">关于软件的行为与其他信息。</p>
                 <ScrollArea className="m-1">
                     <div className="flex justify-center">
-                        <div className={`${isAndroid ? "max-w-[calc(100vw-48px)]" : 'w-full'}`}>
+                        <div className={`${isAndroid ? "max-w-[calc(100vw-48px)]" : 'w-full'} p-2.5`}>
 
                             <div className="rounded-xl border border-border divide-y divide-border min-w-0">
                                 {/* 密码文件路径 —— 内部文件选择器 */}
