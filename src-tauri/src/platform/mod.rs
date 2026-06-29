@@ -55,13 +55,12 @@ impl FileOperator {
     }
     /// 删除内部文件
     pub fn del_inner_file(&self, file_name: &str) -> Result<(), ErrorKind> {
+        use std::fs;
         // 先构建path
         let mut path = self.get_data_dir().unwrap();
         path.push(file_name);
         // 判断路径是否存在
-        if path.exists() {
-            // 开始删除
-            fs::remove_file(path);
+        if path.exists() && fs::remove_file(path).is_ok() {
             return Ok(());
         } else {
             return Err(ErrorKind::NotFound);
