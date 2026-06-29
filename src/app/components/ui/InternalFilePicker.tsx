@@ -1,7 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { get_app_config_dir_files } from '../../tauri_core/command_frontend';
 
-
 export interface InternalFile {
     name: string;
     path: string;
@@ -11,15 +10,14 @@ interface Props {
     onSelect: (file: InternalFile) => void;
     extensions?: string[];
     emptyMessage?: string;
-    dialogOpen: boolean,
-    setDialogOpen: Dispatch<SetStateAction<boolean>> //设置外部dialog隐藏与显示的
-    setDeleteDialogOpen: Dispatch<SetStateAction<boolean>> //设置外部dialog隐藏与显示的
-    setDeleteFileName: Dispatch<SetStateAction<string>>
+    dialogOpen: boolean;
+    setDialogOpen: Dispatch<SetStateAction<boolean>>;
+    setDeleteDialogOpen: Dispatch<SetStateAction<boolean>>;
+    setDeleteFileName: Dispatch<SetStateAction<string>>;
 }
 
 export default function InternalFilePicker({
     onSelect,
-    //extensions,
     emptyMessage = '暂无可选文件，请先导入',
     dialogOpen,
     setDialogOpen,
@@ -30,23 +28,18 @@ export default function InternalFilePicker({
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-
     const loadFiles = async () => {
         try {
             setLoading(true);
             setError(null);
-            //const baseDir = await getAppDataDir();
             const entrys: InternalFile[] = await get_app_config_dir_files();
 
-            const fileList: InternalFile[] = [];
-            for (const entry of entrys) {
-                if (entry) {
-                    fileList.push({
-                        name: entry.name,
-                        path: entry.path,
-                    });
-                }
-            }
+            const fileList: InternalFile[] = entrys
+                .filter(Boolean)
+                .map((entry) => ({
+                    name: entry.name,
+                    path: entry.path,
+                }));
 
             fileList.sort((a, b) => a.name.localeCompare(b.name));
             setFiles(fileList);
@@ -62,89 +55,74 @@ export default function InternalFilePicker({
         loadFiles();
     }, []);
 
+    // 加载状态
     if (loading) {
         return (
-            <div style={{ padding: '1rem', textAlign: 'center', color: '#666' }}>
+            <div className="p-4 text-center text-gray-500 dark:text-gray-400">
                 正在加载文件列表...
             </div>
         );
     }
 
+    // 错误状态
     if (error) {
         return (
-            <div style={{ padding: '1rem', textAlign: 'center', color: '#e00' }}>
+            <div className="p-4 text-center text-red-500 dark:text-red-400">
                 {error}
                 <br />
-                <button onClick={loadFiles} style={{ marginTop: '0.5rem', cursor: 'pointer' }}>
+                <button
+                    onClick={loadFiles}
+                    className="mt-2 cursor-pointer underline hover:no-underline"
+                >
                     重试
                 </button>
             </div>
         );
     }
 
+    // 空状态
     if (files.length === 0) {
         return (
-            <div style={{
-                padding: '2rem 1rem',
-                textAlign: 'center',
-                color: '#888',
-                border: '1px dashed #ddd',
-                borderRadius: 8,
-                margin: '0.5rem',
-            }}>
+            <div className="py-8 px-4 text-center text-gray-400 dark:text-gray-500 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg m-2">
                 {emptyMessage}
             </div>
         );
     }
+
+    // 文件列表
     return (
-        <div style={{
-            maxHeight: '300px',
-            overflowY: 'auto',
-            border: '1px solid #e0e0e0',
-            borderRadius: 8,
-            backgroundColor: '#fff',
-        }}>
+        <div className="max-h-[300px] overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900">
             {files.map((file) => (
                 <div
                     key={file.path}
-
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        padding: '10px 16px',
-                        borderBottom: '1px solid #f0f0f0',
-                        cursor: 'pointer',
-                        transition: 'background 0.2s',
-                    }}
-
-
-                    className={`flex justify-between ${!dialogOpen ? 'hidden' : ''}`}
+                    className={`flex items-center justify-between px-4 py-2.5 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${!dialogOpen ? 'hidden' : ''
+                        }`}
                 >
-                    <div onClick={() => onSelect(file)}
-                        onMouseEnter={(e) => (e.currentTarget.style.background = '#f5f5f5')}
-                        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                    {/* 文件信息区 */}
+                    <div
+                        onClick={() => onSelect(file)}
                         role="button"
                         tabIndex={0}
-                        onKeyDown={(e) => e.key === 'Enter' && onSelect(file)}>
-                        <span style={{ fontSize: '1.2rem', marginRight: 8 }}>📄</span>
-                        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {file.name}
-                        </span>
+                        onKeyDown={(e) => e.key === 'Enter' && onSelect(file)}
+                        className="flex items-center flex-1 overflow-hidden cursor-pointer"
+                    >
+                        <span className="text-lg mr-2">📄</span>
+                        <span className="truncate">{file.name}</span>
                     </div>
 
-                    <div className="py-1 px-2 border-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition-colors">
-                        <button
-                            onClick={() => {
-                                // 显示删除对话框,同时隐藏其他对话框
-                                setDialogOpen(false)
-                                setDeleteDialogOpen(true)
-                                setDeleteFileName(file.name);
-                            }}
-                        >删除</button>
-                    </div>
+                    {/* 删除按钮 */}
+                    <button
+                        onClick={() => {
+                            setDialogOpen(false);
+                            setDeleteDialogOpen(true);
+                            setDeleteFileName(file.name);
+                        }}
+                        className="ml-3 py-1 px-2 text-xs border rounded-xl bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 dark:bg-red-950 dark:text-red-400 dark:hover:bg-red-900 dark:hover:text-red-300 transition-colors"
+                    >
+                        删除
+                    </button>
                 </div>
             ))}
-
         </div>
     );
 }
