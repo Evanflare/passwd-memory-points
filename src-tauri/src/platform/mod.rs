@@ -21,6 +21,8 @@ use std::io::ErrorKind;
 use std::path::PathBuf;
 use tauri::AppHandle;
 
+use crate::core::AppConfig;
+
 #[derive(Clone)]
 /// 提供文件的读写功能
 /// 为了消除windows和android的差异，这里依赖app传入
@@ -55,10 +57,16 @@ impl FileOperator {
     }
     /// 删除内部文件
     pub fn del_inner_file(&self, file_name: &str) -> Result<(), ErrorKind> {
+        println!("收到参数 filename: {}", file_name);
         use std::fs;
         // 先构建path
-        let mut path = self.get_data_dir().unwrap();
-        path.push(file_name);
+        let path = self
+            .get_data_dir()
+            .unwrap()
+            .join(crate::core::PASSWD_DIR_PREFIX)
+            .join(file_name);
+
+        println!("构建好了路径: {}", &path.to_string_lossy());
         // 判断路径是否存在
         if path.exists() && fs::remove_file(path).is_ok() {
             return Ok(());
