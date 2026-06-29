@@ -145,7 +145,9 @@ export default function InternalFilePicker({
                     />
                     <div className="py-1 px-2 border-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition-colors">
                         <button
-
+                            onClick={() => {
+                                setDeleteDiaglogOpen(true);
+                            }}
                         >删除</button>
                     </div>
                 </div>
