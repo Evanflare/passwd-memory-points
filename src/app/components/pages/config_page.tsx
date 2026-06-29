@@ -19,6 +19,7 @@ import ChangeSecretDialog from "../dialog/change_secret.dialog";
 import { ScrollArea } from "../ui/scroll-area";
 import InternalFilePicker, { InternalFile } from "../../components/ui/InternalFilePicker";
 
+
 export default function ConfigPage() {
     const [passwdFilePath, setPasswdFilePath] = useState("");
     const [configPath, setConfigPath] = useState("");
@@ -150,6 +151,7 @@ export default function ConfigPage() {
                                             <div className="text-sm text-muted-foreground truncate">{passwdFilePath}</div>
                                         </div>
                                     </DialogTrigger>
+
                                     <DialogContent className="sm:max-w-md">
                                         <DialogHeader>
                                             <DialogTitle className="pb-4">选择内部密码文件</DialogTitle>
@@ -166,7 +168,7 @@ export default function ConfigPage() {
                                         <div className="space-y-4">
                                             <InternalFilePicker
                                                 onSelect={handleSelectInternalPasswdFile}
-                                                extensions={["json", "txt", "dat"]} // 按需修改
+                                                extensions={["toml"]} // 只检测toml文件
                                                 emptyMessage="还没有内部文件，请先通过「外部切换」导入"
                                             />
                                             <div className="text-xs text-muted-foreground">
@@ -314,6 +316,7 @@ export default function ConfigPage() {
             </Dialog>
 
             <ChangeSecretDialog changeKeyDialogOpen={changeKeyDialogOpen} setChangeKeyDialogOpen={setChangeKeyDialogOpen} />
+
         </div>
     );
 }
