@@ -61,9 +61,9 @@ pub fn del_inner_file(
         Ok(_) => {}
         Err(_) => return Err(Error::SecretKeyError("密码不正确".to_string())),
     }
+    println!("密码正确");
     match manager.file_operator.del_inner_file(del_file_name) {
         Ok(_) => {
-            let _ = manager.passwds.store(&manager.config.passwd_file_path);
             return Ok(());
         }
         Err(_) => {

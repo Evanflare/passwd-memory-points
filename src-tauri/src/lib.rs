@@ -12,8 +12,6 @@ pub mod status;
 pub mod utils;
 /// 重导出
 pub use commands::*;
-
-const APP_NAME: &str = "passwd-memory-points";
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let builder = tauri::Builder::default()

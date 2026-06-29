@@ -21,8 +21,6 @@ use std::io::ErrorKind;
 use std::path::PathBuf;
 use tauri::AppHandle;
 
-use crate::core::AppConfig;
-
 #[derive(Clone)]
 /// 提供文件的读写功能
 /// 为了消除windows和android的差异，这里依赖app传入
