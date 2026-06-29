@@ -37,9 +37,7 @@ export default function ConfigPage() {
     // 删除文件功能的状态
     const [deleteDialogOpen, setDeleteDiaglogOpen] = useState(false);
     const [deleteFileName, setDeleteFileName] = useState("");
-    const delete_file = (word: string, secret_key: string) => {
-        del_inner_file(word, secret_key)
-    }
+    const delete_file = del_inner_file;
     useEffect(() => {
         async function loadConfig() {
             const config = await getConfig();
