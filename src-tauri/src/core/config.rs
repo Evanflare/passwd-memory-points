@@ -1,9 +1,8 @@
 use crate::platform::FileOperator;
-use crate::APP_NAME;
 use serde::{Deserialize, Serialize};
 use std::{
     fs::{self},
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
 
 /// 配置文件名
@@ -70,12 +69,10 @@ impl AppConfig {
         let default_passwd_path = file_operator
             .get_data_dir()
             .expect("无法获得data_dir")
-            .join(Path::new(APP_NAME))
             .join(PASSWD_FILE_NAME);
         let default_profile_path = file_operator
             .get_data_dir()
             .expect("无法获得data_dir")
-            .join(Path::new(APP_NAME))
             .join(PROFILE_NAME)
             .to_path_buf();
         // 校验默认配置文件是否存在，若不存在，则直接返回默认对象
