@@ -53,6 +53,20 @@ impl FileOperator {
             .map_err(|e| e.to_string())?;
         Ok(data_dir)
     }
+    /// 删除内部文件
+    pub fn del_inner_file(&self, file_name: &str) -> Result<(), ErrorKind> {
+        // 先构建path
+        let mut path = self.get_data_dir().unwrap();
+        path.push(file_name);
+        // 判断路径是否存在
+        if path.exists() {
+            // 开始删除
+            fs::remove_file(path);
+            return Ok(());
+        } else {
+            return Err(ErrorKind::NotFound);
+        }
+    }
     #[cfg(target_os = "windows")]
     pub fn read_to_string(&self, file_path: &PathBuf) -> Result<String, ErrorKind> {
         let read_result = fs::read_to_string(Path::new(file_path));
