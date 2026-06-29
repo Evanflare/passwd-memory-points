@@ -130,3 +130,7 @@ export async function get_app_config_dir_files(): Promise<InternalFile[]> {
 export async function extern_file_include(extern_file_path: string): Promise<string> {
     return await invoke<string>('extern_file_include', { extern_file_path });
 }
+
+export async function del_inner_file(file_name: string): Promise<string> {
+    return await invoke<string>('del_inner_file', { del_file_name: file_name });
+}
