@@ -154,6 +154,9 @@ impl Nickname {
                 key,
                 self.default_fill_char,
             );
+            if decrypted.is_err() {
+                return false;
+            }
             let name = format!("{}", String::from_utf8_lossy(&decrypted.unwrap()));
             if del_name == name {
                 del_index = i;
