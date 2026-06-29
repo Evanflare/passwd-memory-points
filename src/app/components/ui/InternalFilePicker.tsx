@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { del_inner_file, get_app_config_dir_files } from '../../tauri_core/command_frontend';
-import { DeleteConfirmDialog } from '../dialog/DeleteConfirmDialog';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { get_app_config_dir_files } from '../../tauri_core/command_frontend';
+
 
 export interface InternalFile {
     name: string;
@@ -11,23 +11,25 @@ interface Props {
     onSelect: (file: InternalFile) => void;
     extensions?: string[];
     emptyMessage?: string;
+    dialogOpen: boolean,
+    setDialogOpen: Dispatch<SetStateAction<boolean>> //设置外部dialog隐藏与显示的
+    setDeleteDialogOpen: Dispatch<SetStateAction<boolean>> //设置外部dialog隐藏与显示的
+    setDeleteFileName: Dispatch<SetStateAction<string>>
 }
 
 export default function InternalFilePicker({
     onSelect,
     //extensions,
     emptyMessage = '暂无可选文件，请先导入',
+    dialogOpen,
+    setDialogOpen,
+    setDeleteDialogOpen,
+    setDeleteFileName,
 }: Props) {
     const [files, setFiles] = useState<InternalFile[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    // 删除文件功能的状态
-    const [deleteDialogOpen, setDeleteDiaglogOpen] = useState(false);
-    const [deleteFileName, setDeleteFileName] = useState("");
-    const delete_file = function () {
-        del_inner_file(deleteFileName)
-    }
-    const [hidden, setHiddenStatus] = useState(false)
+
 
     const loadFiles = async () => {
         try {
@@ -94,7 +96,6 @@ export default function InternalFilePicker({
             </div>
         );
     }
-
     return (
         <div style={{
             maxHeight: '300px',
@@ -117,7 +118,7 @@ export default function InternalFilePicker({
                     }}
 
 
-                    className={`flex justify-between ${hidden ? 'hidden' : ''}`}
+                    className={`flex justify-between ${!dialogOpen ? 'hidden' : ''}`}
                 >
                     <div onClick={() => onSelect(file)}
                         onMouseEnter={(e) => (e.currentTarget.style.background = '#f5f5f5')}
@@ -134,31 +135,16 @@ export default function InternalFilePicker({
                     <div className="py-1 px-2 border-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition-colors">
                         <button
                             onClick={() => {
-                                // 显示删除对话框
-                                setDeleteDiaglogOpen(true);
-                                // 隐藏原来的对话框
-                                setHiddenStatus(true);
+                                // 显示删除对话框,同时隐藏其他对话框
+                                setDialogOpen(false)
+                                setDeleteDialogOpen(true)
+                                setDeleteFileName(file.name);
                             }}
                         >删除</button>
                     </div>
                 </div>
             ))}
-            {/* 删除确认对话框 */}
-            <DeleteConfirmDialog
-                open={deleteDialogOpen}
-                deleteKey={deleteFileName}
-                onClose={() => {
-                    setDeleteDiaglogOpen(false);
-                    setDeleteFileName("");
-                    // 恢复原来的对话框显示
-                    setHiddenStatus(false);
-                }}
-                deleteFunction={delete_file}
-                onSuccess={async () => {
-                    //重新加载文件列表
-                    await loadFiles();
-                }}
-            />
+
         </div>
     );
 }

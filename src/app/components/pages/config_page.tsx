@@ -1,5 +1,6 @@
+import { DeleteConfirmDialog } from '../dialog/DeleteConfirmDialog';
 import { useState, useEffect } from "react";
-import { changeFile, extern_file_include, getConfig } from "../../tauri_core/command_frontend";
+import { changeFile, del_inner_file, extern_file_include, getConfig } from "../../tauri_core/command_frontend";
 import {
     Dialog,
     DialogContent,
@@ -33,7 +34,12 @@ export default function ConfigPage() {
 
     // 密码文件路径弹窗的显隐控制
     const [passwdFileDialogOpen, setPasswdFileDialogOpen] = useState(false);
-
+    // 删除文件功能的状态
+    const [deleteDialogOpen, setDeleteDiaglogOpen] = useState(false);
+    const [deleteFileName, setDeleteFileName] = useState("");
+    const delete_file = (word: string, secret_key: string) => {
+        del_inner_file(word, secret_key)
+    }
     useEffect(() => {
         async function loadConfig() {
             const config = await getConfig();
@@ -142,9 +148,10 @@ export default function ConfigPage() {
                     <div className="flex justify-center">
                         <div className={`${isAndroid ? "max-w-[calc(100vw-48px)]" : 'w-full'} p-2.5`}>
 
-                            <div className="rounded-xl border border-border divide-y divide-border min-w-0">
+                            <div className={`rounded-xl border border-border divide-y divide-border min-w-0`}>
                                 {/* 密码文件路径 —— 内部文件选择器 */}
-                                <Dialog open={passwdFileDialogOpen} onOpenChange={setPasswdFileDialogOpen}>
+                                <Dialog
+                                    open={passwdFileDialogOpen} onOpenChange={setPasswdFileDialogOpen}>
                                     <DialogTrigger asChild>
                                         <div className="flex flex-col justify-between p-4 bg-card min-w-0 cursor-pointer hover:bg-accent/50 transition-colors">
                                             <div className="font-medium">密码文件存储路径</div>
@@ -170,6 +177,10 @@ export default function ConfigPage() {
                                                 onSelect={handleSelectInternalPasswdFile}
                                                 extensions={["toml"]} // 只检测toml文件
                                                 emptyMessage="还没有内部文件，请先通过「外部切换」导入"
+                                                setDialogOpen={setPasswdFileDialogOpen}
+                                                dialogOpen={passwdFileDialogOpen}
+                                                setDeleteDialogOpen={setDeleteDiaglogOpen}
+                                                setDeleteFileName={setDeleteFileName}
                                             />
                                             <div className="text-xs text-muted-foreground">
                                                 点击列表中的文件即可切换，切换后立即生效。
@@ -253,7 +264,22 @@ export default function ConfigPage() {
                     </div>
                 </ScrollArea>
             </div>
-
+            {/* 删除确认对话框 */}
+            <DeleteConfirmDialog
+                open={deleteDialogOpen}
+                deleteKey={deleteFileName}
+                onClose={() => {
+                    setDeleteDiaglogOpen(false);
+                    setDeleteFileName("");
+                    // 恢复原来的对话框显示
+                    setPasswdFileDialogOpen(true);
+                }}
+                deleteFunction={delete_file}
+                onSuccess={async () => {
+                    //重新加载文件列表
+                    await refreshConfig();
+                }}
+            />
             {/* 导入对话框 */}
             <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
                 <DialogContent className="sm:max-w-md">
