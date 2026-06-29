@@ -9,6 +9,8 @@ use std::{
 pub const PROFILE_NAME: &str = "config.toml";
 pub const DEFAULT_FILL_CHAR: char = '0';
 pub const PASSWD_FILE_NAME: &str = ".passwd.toml";
+pub const PASSWD_DIR_PREFIX: &str = "password_files";
+pub const CONFIG_DIR_PREFIX: &str = "config_files";
 
 #[derive(Serialize, Deserialize, Clone)]
 /// 程序的配置结构体，负责读取配置文件，构造配置文件，修改配置文件，配置文件导出导入。
@@ -69,10 +71,12 @@ impl AppConfig {
         let default_passwd_path = file_operator
             .get_data_dir()
             .expect("无法获得data_dir")
+            .join(PASSWD_DIR_PREFIX)
             .join(PASSWD_FILE_NAME);
         let default_profile_path = file_operator
             .get_data_dir()
             .expect("无法获得data_dir")
+            .join(CONFIG_DIR_PREFIX)
             .join(PROFILE_NAME)
             .to_path_buf();
         // 校验默认配置文件是否存在，若不存在，则直接返回默认对象
