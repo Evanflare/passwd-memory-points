@@ -37,6 +37,7 @@ pub fn run() {
             plaintext_points,
             get_app_config_dir_files,
             extern_file_include,
+            del_inner_file,
             change_secret_key,
             change_file,
             export_string,
