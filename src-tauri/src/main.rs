@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    passwd_memory_points_lib::run()
+    memoria_lib::run()
 }
