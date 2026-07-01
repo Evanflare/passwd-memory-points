@@ -179,7 +179,7 @@ export default function NicknameManagerPage({ isAndroid }: { isAndroid: boolean 
                                             </span>
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <div className="font-semibold">Nickname {idx + 1}</div>
+                                            <div className="font-semibold">记忆点 {idx + 1}</div>
                                             <div className="text-xs text-muted-foreground mb-1">Local</div>
                                             <div
                                                 className={`text-sm font-mono tracking-wide transition-all ${revealed
