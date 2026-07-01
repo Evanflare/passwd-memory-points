@@ -1,6 +1,6 @@
 // src/app/components/dialog/edit_passwd_dialog.tsx
 import { useEffect, useRef, useState } from "react";
-import { X, Edit3, Eye } from "lucide-react";
+import { X, Edit3 } from "lucide-react";
 import { getPasswd, updatePasswd } from "../../tauri_core/command_frontend";
 import { ScrollArea } from "../ui/scroll-area";
 import type { PasswdSummary } from "../../tauri_core/command_frontend";
@@ -31,7 +31,6 @@ export default function EditPasswdDialog({ passwd, hidden, onClose, onUpdated }:
     const [unique, setUnique] = useState(initial.current.unique);
     const [plaintext, setPlaintext] = useState(""); // decrypted password (populated after auth)
 
-    const [showKey, setShowKey] = useState(false); // 按住时显示 secret 明文
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
 
@@ -66,15 +65,7 @@ export default function EditPasswdDialog({ passwd, hidden, onClose, onUpdated }:
         }
     };
 
-    // const changed = {
-    //     name: name !== initial.current.name,
-    //     description: description !== initial.current.description,
-    //     unique: unique !== initial.current.unique,
-    //     plaintext: plaintext !== "" && plaintext !== undefined && plaintext !== null && plaintext !== "" && plaintext !== "" /* whether user edited decrypted value */ ? false : false
-    // };
-
     // 更精确判断 plaintext 是否被修改：比较与解密后得到的原始 plain
-    // 为简单起见：在解密后 plaintextOrig 保存原值并比较
     const [plaintextOrig, setPlaintextOrig] = useState<string | null>(null);
     useEffect(() => {
         if (stage === "view" && plaintext && plaintextOrig === null) {
@@ -225,7 +216,7 @@ export default function EditPasswdDialog({ passwd, hidden, onClose, onUpdated }:
                                     />
                                 </div> */}
 
-                                {/* Decrypted password with press-and-hold reveal */}
+                                {/* Decrypted password - now always visible */}
                                 <div className={`flex flex-col gap-1.5 ${isFieldChanged.plaintext ? "ring-2 ring-yellow-300 rounded-md p-2" : ""}`}>
                                     <label className="text-sm flex items-center justify-between">
                                         <span>密码记忆</span>
@@ -233,24 +224,12 @@ export default function EditPasswdDialog({ passwd, hidden, onClose, onUpdated }:
                                     </label>
                                     <div className="relative">
                                         <input
-                                            type={showKey ? "text" : "password"}
+                                            type="text"
                                             value={plaintext}
                                             onChange={(e) => setPlaintext(e.target.value)}
                                             className="w-full px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors font-mono"
                                             spellCheck={false}
                                         />
-                                        <button
-                                            aria-label="Reveal password"
-                                            onMouseDown={() => setShowKey(true)}
-                                            onMouseUp={() => setShowKey(false)}
-                                            onMouseLeave={() => setShowKey(false)}
-                                            onTouchStart={() => setShowKey(true)}
-                                            onTouchEnd={() => setShowKey(false)}
-                                            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-                                        >
-                                            <Eye size={14} />
-                                        </button>
-                                        <p className="text-xs text-muted-foreground mt-1">按住眼睛图标查看明文，松开恢复掩码。</p>
                                     </div>
                                 </div>
 
