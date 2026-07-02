@@ -172,7 +172,7 @@ export default function AddPasswordDialog({ onClosed, onAdded, hidden }: AddPass
     const [error, setError] = useState<string | null>(null);
     const [needAuth, setAuthNeed] = useState<boolean>(true);
     const [keyError, setKeyError] = useState<string>("");
-    const nameInputRef = useRef<HTMLInputElement>(null);
+    const nameInputRef = useRef<HTMLTextAreaElement | null>(null);
     const [plaintext_points, setPlaintextPoints] = useState<string[]>([]);
 
     const onClose = () => {
@@ -347,13 +347,13 @@ export default function AddPasswordDialog({ onClosed, onAdded, hidden }: AddPass
                             <div className="px-6 py-5 flex flex-col gap-4">
                                 <div className="flex flex-col gap-1.5">
                                     <label className="text-sm">名称 *</label>
-                                    <input
+                                    <textarea
                                         ref={nameInputRef}
-                                        type="text"
                                         value={name}
+                                        rows={1}
                                         onChange={(e) => setName(e.target.value)}
                                         onKeyDown={handleKeyDown}
-                                        placeholder="例如: bilibili 密码"
+                                        placeholder="例如: github 密码"
                                         className="w-full px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                                     />
                                 </div>

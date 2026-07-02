@@ -34,8 +34,7 @@ export default function EditPasswdDialog({ passwd, hidden, onClose, onUpdated }:
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
 
-    const nameRef = useRef<HTMLInputElement | null>(null);
-
+    const nameRef = useRef<HTMLTextAreaElement | null>(null);
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
             if (e.key === "Escape") onClose();
@@ -178,10 +177,10 @@ export default function EditPasswdDialog({ passwd, hidden, onClose, onUpdated }:
                                         <span>名称</span>
                                         {isFieldChanged.name && <span className="text-xs text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full">修改部分</span>}
                                     </label>
-                                    <input
+                                    <textarea
                                         ref={nameRef}
-                                        type="text"
                                         value={name}
+                                        rows={1}
                                         onChange={(e) => setName(e.target.value)}
                                         className="w-full px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                                     />
