@@ -41,6 +41,7 @@ const NAV_ITEMS: {
 import PasswordListPage from "./components/pages/passwd_list_page";
 import ConfigPage from "./components/pages/config_page";
 import NicknameManagerPage from "./components/pages/nickname_page";
+import { getConfig, update_dark_mode } from "./tauri_core/command_frontend";
 function ActivePage({ page, isAndroid }: { page: Page, isAndroid: boolean }) {
   if (page === "passwd-list") return <PasswordListPage isAndroid={isAndroid} />;
   if (page === "nickname-manager")
@@ -52,7 +53,7 @@ export default function App() {
   console.log("App.tsx 被加载了");
   const [activePage, setActivePage] =
     useState<Page>("passwd-list");
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
     try {
       const v = localStorage.getItem("kv_sidebar_width");
@@ -67,8 +68,6 @@ export default function App() {
 
   // 简单的 Android 检测（运行时）——用于在 Android 上调整布局
   let isAndroid = typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
-  // 用于测试T
-  //isAndroid = true;
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
   }, [dark]);
@@ -79,6 +78,40 @@ export default function App() {
     } catch { }
   }, [sidebarWidth]);
 
+  // 当组件挂载时，获取配置并设置 dark 状态
+  useEffect(() => {
+    async function fetchConfig() {
+      try {
+        // 调用 getConfig 函数获取配置
+        console.log("Fetching config...");
+        const config = await getConfig();
+        setDark(config.dark_mode);
+        console.log("Got config dark_mode:", config.dark_mode);
+      } catch (error) {
+        console.error("Failed to fetch config:", error);
+      }
+    }
+
+    fetchConfig();
+  }, []);
+
+  // 监听 dark 状态变化，并更新配置
+  useEffect(() => {
+    async function updateDarkModeConfig() {
+      try {
+        console.log("Updating dark mode config to:", dark);
+        if (typeof dark !== "boolean") {
+          console.error("Invalid dark mode value:", dark);
+          return;
+        }
+        await update_dark_mode(dark);
+      } catch (error) {
+        console.error("Failed to update dark mode config:", error);
+      }
+    }
+
+    updateDarkModeConfig();
+  }, [dark]);
 
   return (
     // {/* MARKER-MAKE-KIT-INVOKED */}

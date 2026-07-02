@@ -9,6 +9,7 @@ export type PasswdSummary = {
     ciphertext: string;
 };
 export type ConfigInfo = {
+    dark_mode: boolean;
     default_fill_char: '',
     passwd_file_path: string,
     profile_path: string,
@@ -133,4 +134,9 @@ export async function extern_file_include(extern_file_path: string): Promise<str
 
 export async function del_inner_file(file_name: string, secret_key: string) {
     return await invoke<string>('del_inner_file', { del_file_name: file_name, secret_key });
+}
+
+// 更新dark mode配置
+export async function update_dark_mode(dark_mode: boolean) {
+    return await invoke<string>('update_dark_mode', { dark_mode: dark_mode });
 }

@@ -47,7 +47,8 @@ pub fn run() {
             get_app_data_dir,
             update_passwd,
             del_memory_point,
-            del_passwd_by_uid
+            del_passwd_by_uid,
+            update_dark_mode
         ])
         .run(generate_context!())
         .expect("error while running tauri application");

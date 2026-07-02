@@ -33,6 +33,7 @@ pub fn get_config(state: State<'_, Mutex<PasswdManager>>) -> Result<ConfigInfo, 
         default_fill_char: manager.config.fill_char,
         passwd_file_path: manager.config.passwd_file_path.display().to_string(),
         profile_path: manager.config.profile_path.display().to_string(),
+        dark_mode: manager.config.dark_mode,
     })
 }
 

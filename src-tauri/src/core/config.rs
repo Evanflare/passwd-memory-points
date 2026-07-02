@@ -25,6 +25,7 @@ pub struct AppConfig {
     pub profile_path: PathBuf,
     #[serde(skip_serializing, skip_deserializing)]
     pub file_operator: FileOperator,
+    pub dark_mode: bool,
 }
 impl Default for AppConfig {
     fn default() -> Self {
@@ -33,6 +34,7 @@ impl Default for AppConfig {
             passwd_file_path: Default::default(),
             profile_path: Default::default(),
             file_operator: FileOperator::default(),
+            dark_mode: true, // 默认启用暗模式
         }
     }
 }
@@ -92,6 +94,7 @@ impl AppConfig {
             fill_char: DEFAULT_FILL_CHAR,
             passwd_file_path: default_passwd_path,
             profile_path: default_profile_path,
+            dark_mode: Default::default(),
         };
         let _ = default_config.store();
         default_config
@@ -219,6 +222,15 @@ impl AppConfig {
 pub enum ConfigError {
     SerializeError(String),
     FileOperationError(String),
+}
+
+impl ToString for ConfigError {
+    fn to_string(&self) -> String {
+        match self {
+            ConfigError::SerializeError(msg) => msg.clone(),
+            ConfigError::FileOperationError(msg) => msg.clone(),
+        }
+    }
 }
 
 #[cfg(test)]

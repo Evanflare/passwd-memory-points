@@ -122,3 +122,19 @@ pub fn change_file(
     manager.config = config;
     Ok(())
 }
+
+/// 更新dark_mode
+#[tauri::command(rename_all = "snake_case")]
+pub fn update_dark_mode(
+    dark_mode: bool,
+    state: State<'_, Mutex<PasswdManager>>,
+) -> Result<(), Error> {
+    println!("update_dark_mode: {}", dark_mode);
+    let mut manager = state.lock().unwrap();
+    manager.config.dark_mode = dark_mode;
+    manager
+        .config
+        .store()
+        .map_err(|e| Error::FileOperationError(format!("无法保存配置文件: {}", e.to_string())))?;
+    Ok(())
+}
